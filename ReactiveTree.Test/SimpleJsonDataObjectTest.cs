@@ -29,7 +29,7 @@ namespace Kirinji.ReactiveTree.Test
             sbyte i2;
             y.TryCast(out i2).IsTrue();
             i2.Is((sbyte)-1);
-
+            
             sbyte i;
             new SimpleJsonDataObject((double)sbyte.MaxValue).TryCast(out i).IsTrue();
             i.Is(sbyte.MaxValue);

@@ -103,18 +103,23 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="IDirectoryValueChanged.cs" />
+    <Compile Include="LightWands\LightWands.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleJson.cs" />
     <Compile Include="TreeElements\ChangedChildren.cs" />
+    <Compile Include="TreeElements\ChangedChildrenSeriesEvent.cs" />
     <Compile Include="TreeElements\Child.cs" />
     <Compile Include="TreeElements\ChildWithoutKey.cs" />
     <Compile Include="TreeElements\ElementType.cs" />
     <Compile Include="TreeElements\GrandChild.cs" />
     <Compile Include="TreeElements\GrandChildrenContainer.cs" />
     <Compile Include="TreeElements\GrandChildrenContainerExtensions.cs" />
+    <Compile Include="TreeElements\ITreeElement.cs" />
     <Compile Include="TreeElements\LeafValueContainer.cs" />
     <Compile Include="TreeElements\LeafValueContainerExtensions.cs" />
+    <Compile Include="TreeElements\SeriesTreeElement.cs" />
     <Compile Include="TreeElements\TreeElement.cs" />
+    <Compile Include="TreeElements\ITreeElementContract.cs" />
     <Compile Include="TreeElements\TreeElementExtensions.cs" />
     <Compile Include="TreeElements\_FriendAssemblies.cs" />
     <Compile Include="Merging\IStopSubscription.cs" />
@@ -123,27 +128,12 @@
     <Compile Include="Merging\TreeElementDictionary.cs" />
     <Compile Include="Merging\TreeElementNotifier.cs" />
     <Compile Include="Merging\TreeElementNotifierFilter.cs" />
-    <Compile Include="Merging\TwitterApiEventManager.cs" />
     <Compile Include="Merging\_FriendAssemblies.cs" />
     <Compile Include="_DataDefinitionLanguage\DataObject.cs" />
     <Compile Include="_DataDefinitionLanguage\IDataObject.cs" />
     <Compile Include="_DataDefinitionLanguage\SimpleJsonDataObject.cs" />
     <Compile Include="_DataDefinitionLanguage\TreeElementConverter.cs" />
     <Compile Include="_FriendAssemblies.cs" />
-    <Compile Include="LightWands\Net40+SL5+WinRT45+WP8\AnonymousEqualityComparer.cs" />
-    <Compile Include="LightWands\Net40+SL5+WinRT45+WP8\_Base\Disposable.cs" />
-    <Compile Include="LightWands\Net40+SL5+WinRT45+WP8\_ExtensionMethods\EnumerableEx.cs" />
-    <Compile Include="LightWands\Net40+SL5+WinRT45+WP8\_ExtensionMethods\ICollectionExtensions.cs" />
-    <Compile Include="LightWands\Net40+SL5+WinRT45+WP8\_ExtensionMethods\IDictionaryExtensions.cs" />
-    <Compile Include="LightWands\Net40+SL5+WinRT45+WP8\_ExtensionMethods\IEnumerableExtensions.cs" />
-    <Compile Include="LightWands\Net40+SL5+WinRT45+WP8\_ExtensionMethods\IListExtensions.cs" />
-    <Compile Include="LightWands\Net40+SL5+WinRT45+WP8\_ExtensionMethods\StringExtensions.cs" />
-    <Compile Include="LightWands\Net45+WinRT45+WP8\CashedReplaySubject.cs" />
-    <Compile Include="LightWands\Net45+WinRT45+WP8\ObservableDictionary.cs" />
-    <Compile Include="LightWands\Net45+WinRT45+WP8\_ExtensionMethods\INotifyCollectionChangedExtensions.cs" />
-    <Compile Include="LightWands\Net45+WinRT45+WP8\_ExtensionMethods\IObservableExtensions.cs" />
-    <Compile Include="LightWands\Net45+WinRT45+WP8\_ExtensionMethods\ObservableCollectionExtensions.cs" />
-    <Compile Include="LightWands\Net45+WinRT45+WP8\_ExtensionMethods\ReadOnlyObservableCollectionExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Reactive.Core">
