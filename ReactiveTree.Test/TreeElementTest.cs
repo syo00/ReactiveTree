@@ -357,6 +357,61 @@ namespace Kirinji.ReactiveTree.Test
         }
 
         [TestMethod]
+        public void ModifyTreeAsSeriesTest()
+        {
+            var tree = new TreeElement<int, string>();
+            tree[1] = new TreeElement<int, string>("1");
+            tree[2] = new TreeElement<int, string>("2");
+            tree[3] = new TreeElement<int, string>("3");
+
+            var history = tree.ChildrenChanged.SubscribeHistory();
+            tree.ModifyTreeAsSeries(t =>
+                {
+                    t[1] = new TreeElement<int, string>("one");
+                    t[2] = new TreeElement<int, string>("TWO");
+                    t[2] = new TreeElement<int, string>("two");
+                });
+            tree.ModifyTreeAsSeries(t =>
+                {
+                    t[1] = new TreeElement<int, string>("only one!");
+                    t.ModifyTreeAsSeries(t2 => t[2] = new TreeElement<int, string>("not only one!")); // inner change will tied with same Id
+                });
+            var change1 = history.Values.ElementAt(0);
+            change1.Count().Is(2);
+            var change2 = history.Values.ElementAt(1);
+            change2.Count().Is(2);
+            history.Values.Count().Is(2);
+
+            var change1_key1 = change1.Single(cc => cc.Key == 1);
+            change1_key1.OldValues.Single().LeafValue.Is("1");
+            change1_key1.NewValues.Single().LeafValue.Is("one");
+            change1_key1.AreOldValuesArray.IsFalse();
+            change1_key1.AreNewValuesArray.IsFalse();
+
+            var change1_key2 = change1.Single(cc => cc.Key == 2);
+            change1_key2.OldValues.Single().LeafValue.Is("2");
+            change1_key2.NewValues.Single().LeafValue.Is("two");
+            change1_key2.AreOldValuesArray.IsFalse();
+            change1_key2.AreNewValuesArray.IsFalse();
+
+            var change2_key1 = change2.Single(cc => cc.Key == 1);
+            change2_key1.OldValues.Single().LeafValue.Is("one");
+            change2_key1.NewValues.Single().LeafValue.Is("only one!");
+            change2_key1.AreOldValuesArray.IsFalse();
+            change2_key1.AreNewValuesArray.IsFalse();
+
+            var change2_key2 = change2.Single(cc => cc.Key == 2);
+            change2_key2.OldValues.Single().LeafValue.Is("two");
+            change2_key2.NewValues.Single().LeafValue.Is("not only one!");
+            change2_key2.AreOldValuesArray.IsFalse();
+            change2_key2.AreNewValuesArray.IsFalse();
+
+            new[] { change1.Id, change1_key1.Id, change1_key2.Id }.Distinct().Count().Is(1);
+            new[] { change2.Id, change2_key1.Id, change2_key2.Id }.Distinct().Count().Is(1);
+            change1.Id.IsNot(change2.Id);
+        }
+
+        [TestMethod]
         public void EqualsAndHashCodeTest()
         {
             var te_a1 = new TreeElement<string, string>("a");
