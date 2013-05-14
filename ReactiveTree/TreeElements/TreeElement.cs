@@ -16,6 +16,15 @@ namespace Kirinji.ReactiveTree.TreeElements
         private readonly IDictionary<TKey, TreeElement<TKey, TValue>> nodeChildren;
         private readonly IDictionary<TKey, IList<TreeElement<TKey, TValue>>> arrayNodeChildren;
         private TValue leafValue;
+
+        /* How to raise (c|C)hildrenChanged: 
+         * 1. Raise childrenChangeStarted once.
+         * 2. Raise singleChildrenChanged 0..* times.
+         * 3. Raise childrenChangeEnded once.
+         * 
+         * Then automatically raises (c|C)hildrenChanged
+         * From 1 to 3, use same id.
+         */
         private ISubject<ChangedChildren<TKey, TValue>> singleChildrenChanged;
         private ISubject<ChangedChildrenSeriesEvent<TKey, TValue>> childrenChanged;
         private ISubject<object> childrenChangeStarted;
@@ -73,6 +82,7 @@ namespace Kirinji.ReactiveTree.TreeElements
             this.childrenChangeEnded = new Subject<object>();
             this.childrenChanged = new Subject<ChangedChildrenSeriesEvent<TKey, TValue>>();
 
+            // SingleChildrenChanged to ChildrenChanged
             this.SingleChildrenChanged
                 .Where(cc => cc.Id == null)
                 .Subscribe(cc =>
@@ -89,9 +99,11 @@ namespace Kirinji.ReactiveTree.TreeElements
                         });
                     childrenChangeEnded
                         .Where(endId => startId == endId)
+                        .FirstAsync()
                         .Subscribe(_ =>
                         {
                             s.Dispose();
+                            if (history.Count == 0) return;
                             this.childrenChanged.OnNext(new ChangedChildrenSeriesEvent<TKey, TValue>(history));
                         });
                 });
@@ -167,7 +179,10 @@ namespace Kirinji.ReactiveTree.TreeElements
             {
                 if (this.arrayNodeChildren.Any(c => CompareKeys(c.Key, key))) throw new InvalidOperationException();
 
-                IndexerSet(key, value, null);
+                var id = new object();
+                childrenChangeStarted.OnNext(id);
+                IndexerSet(key, value, id);
+                childrenChangeEnded.OnNext(id);
             }
         }
 
@@ -175,6 +190,7 @@ namespace Kirinji.ReactiveTree.TreeElements
         {
             Contract.Requires<ArgumentNullException>(key != null);
             Contract.Requires<ArgumentNullException>(value != null);
+            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<InvalidOperationException>(this.Type == ElementType.Node);
             if (this.arrayNodeChildren.Any(c => CompareKeys(c.Key, key))) throw new InvalidOperationException();
 
@@ -185,7 +201,10 @@ namespace Kirinji.ReactiveTree.TreeElements
 
         public void SetSingleChild(TKey key, TreeElement<TKey, TValue> newChild)
         {
-            SetSingleChild(key, newChild, null);
+            var id = new object();
+            childrenChangeStarted.OnNext(id);
+            SetSingleChild(key, newChild, id);
+            childrenChangeEnded.OnNext(id);
         }
 
         internal void SetSingleChild(TKey key, TreeElement<TKey, TValue> newChild, object id)
@@ -193,6 +212,7 @@ namespace Kirinji.ReactiveTree.TreeElements
             Contract.Requires<InvalidOperationException>(this.Type == ElementType.Node);
             Contract.Requires<ArgumentNullException>(key != null);
             Contract.Requires<ArgumentNullException>(newChild != null);
+            Contract.Requires<ArgumentNullException>(id != null);
 
             IEnumerable<TreeElement<TKey, TValue>> oldArray = null;
             TreeElement<TKey, TValue> oldSingleChild = GetSingleChildOrDefault(key);
@@ -232,7 +252,10 @@ namespace Kirinji.ReactiveTree.TreeElements
         /// </param>
         public void ModifyArrayChild(TKey key, Func<TreeElement<TKey, TValue>, IEnumerable<TreeElement<TKey, TValue>>> arrayCreator, Action<IList<TreeElement<TKey, TValue>>> arrayModifier)
         {
-            ModifyArrayChild(key, arrayCreator, arrayModifier, null);
+            var id = new object();
+            childrenChangeStarted.OnNext(id);
+            ModifyArrayChild(key, arrayCreator, arrayModifier, id);
+            childrenChangeEnded.OnNext(id);
         }
 
         
@@ -241,6 +264,7 @@ namespace Kirinji.ReactiveTree.TreeElements
             Contract.Requires<ArgumentNullException>(key != null);
             Contract.Requires<ArgumentNullException>(arrayModifier != null);
             Contract.Requires<ArgumentNullException>(arrayCreator != null);
+            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<InvalidOperationException>(this.Type == ElementType.Node);
 
             var oldArray = this.GetArrayChildReferenceOrDefault(key);

@@ -17,6 +17,7 @@ namespace Kirinji.ReactiveTree.TreeElements
             newValue == null ? null : new[] { newValue },
             false, false)
         {
+            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<ArgumentNullException>(key != null);
         }
 
@@ -28,6 +29,7 @@ namespace Kirinji.ReactiveTree.TreeElements
             newValue == null ? null : new[] { newValue },
             true, false)
         {
+            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<ArgumentNullException>(key != null);
         }
 
@@ -39,6 +41,7 @@ namespace Kirinji.ReactiveTree.TreeElements
             newValues == null ? null : newValues.ToArray(), 
             false, true)
         {
+            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<ArgumentNullException>(key != null);
         }
 
@@ -50,6 +53,7 @@ namespace Kirinji.ReactiveTree.TreeElements
             newValues == null ? null : newValues.ToArray(), 
             true, true)
         {
+            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<ArgumentNullException>(key != null);
         }
 
@@ -62,6 +66,7 @@ namespace Kirinji.ReactiveTree.TreeElements
             bool isArray)
             : this()
         {
+            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<ArgumentNullException>(key != null);
             if (oldValues != null)
             {

@@ -14,7 +14,6 @@ namespace Kirinji.ReactiveTree.TreeElements
         private readonly IEnumerable<ChangedChildren<TKey, TValue>> children;
         private readonly object id;
 
-        // キーが null のときも特別な扱いはせず、null でないときと同じ処理をする。
         public ChangedChildrenSeriesEvent(IEnumerable<ChangedChildren<TKey, TValue>> children)
             : this()
         {
