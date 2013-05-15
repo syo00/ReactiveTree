@@ -9,56 +9,45 @@ namespace Kirinji.ReactiveTree.TreeElements
 {
     public struct ChangedChildren<TKey, TValue>
     {
-        public ChangedChildren(object id, TKey key, TreeElement<TKey, TValue> oldValue, TreeElement<TKey, TValue> newValue)
+        public ChangedChildren(TKey key, TreeElement<TKey, TValue> oldValue, TreeElement<TKey, TValue> newValue)
             : this(
-            id,
             key, 
             oldValue == null ? null : new[] { oldValue },
             newValue == null ? null : new[] { newValue },
             false, false)
         {
-            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<ArgumentNullException>(key != null);
         }
 
-        public ChangedChildren(object id, TKey key, IEnumerable<TreeElement<TKey, TValue>> oldValues, TreeElement<TKey, TValue> newValue)
+        public ChangedChildren(TKey key, IEnumerable<TreeElement<TKey, TValue>> oldValues, TreeElement<TKey, TValue> newValue)
             : this(
-            id,
             key, 
             oldValues == null ? null : oldValues.ToArray(), 
             newValue == null ? null : new[] { newValue },
             true, false)
         {
-            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<ArgumentNullException>(key != null);
         }
 
-        public ChangedChildren(object id, TKey key, TreeElement<TKey, TValue> oldValue, IEnumerable<TreeElement<TKey, TValue>> newValues)
-            : this(
-            id,
-            key,
+        public ChangedChildren(TKey key, TreeElement<TKey, TValue> oldValue, IEnumerable<TreeElement<TKey, TValue>> newValues)
+            : this(key,
             oldValue == null ? null : new[] { oldValue },
             newValues == null ? null : newValues.ToArray(), 
             false, true)
         {
-            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<ArgumentNullException>(key != null);
         }
 
-        public ChangedChildren(object id, TKey key, IEnumerable<TreeElement<TKey, TValue>> oldValues, IEnumerable<TreeElement<TKey, TValue>> newValues)
-            : this(
-            id,
-            key,
+        public ChangedChildren(TKey key, IEnumerable<TreeElement<TKey, TValue>> oldValues, IEnumerable<TreeElement<TKey, TValue>> newValues)
+            : this(key,
             oldValues == null ? null : oldValues.ToArray(),
             newValues == null ? null : newValues.ToArray(), 
             true, true)
         {
-            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<ArgumentNullException>(key != null);
         }
 
         private ChangedChildren(
-            object id,
             TKey key,
             IEnumerable<TreeElement<TKey, TValue>> oldValues,
             IEnumerable<TreeElement<TKey, TValue>> newValues,
@@ -66,7 +55,6 @@ namespace Kirinji.ReactiveTree.TreeElements
             bool isArray)
             : this()
         {
-            Contract.Requires<ArgumentNullException>(id != null);
             Contract.Requires<ArgumentNullException>(key != null);
             if (oldValues != null)
             {
@@ -78,13 +66,11 @@ namespace Kirinji.ReactiveTree.TreeElements
                 if (newValues.Contains(null)) throw new ArgumentException("newValues.Contains(null)");
                 this.AreNewValuesArray = isArray;
             }
-            this.Id = id;
             this.Key = key;
             this.OldValues = oldValues;
             this.NewValues = newValues;
         }
 
-        public object Id { get; private set; }
         public TKey Key { get; private set; }
         public IEnumerable<TreeElement<TKey, TValue>> OldValues { get; private set; }
         public IEnumerable<TreeElement<TKey, TValue>> NewValues { get; private set; }

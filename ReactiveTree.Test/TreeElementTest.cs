@@ -153,17 +153,17 @@ namespace Kirinji.ReactiveTree.Test
             node.GetAllChildren().Count().Is(3);
             history.Count().Is(2);
             var node1History = history.Values.ElementAt(0);
-            node1History.Single().Key.Is(1);
-            node1History.Single().AreOldValuesArray.IsFalse();
-            node1History.Single().AreNewValuesArray.IsFalse();
-            node1History.Single().OldValues.Single().LeafValue.Is("1");
-            node1History.Single().NewValues.Single().LeafValue.Is("One");
+            node1History.Key.Is(1);
+            node1History.AreOldValuesArray.IsFalse();
+            node1History.AreNewValuesArray.IsFalse();
+            node1History.OldValues.Single().LeafValue.Is("1");
+            node1History.NewValues.Single().LeafValue.Is("One");
             var node2History = history.Values.ElementAt(1);
-            node2History.Single().Key.Is(2);
-            node2History.Single().AreOldValuesArray.IsFalse();
-            node2History.Single().AreNewValuesArray.IsFalse();
-            node2History.Single().OldValues.IsNull();
-            node2History.Single().NewValues.Single().LeafValue.Is("Two");
+            node2History.Key.Is(2);
+            node2History.AreOldValuesArray.IsFalse();
+            node2History.AreNewValuesArray.IsFalse();
+            node2History.OldValues.IsNull();
+            node2History.NewValues.Single().LeafValue.Is("Two");
         }
 
         [TestMethod]
@@ -188,15 +188,15 @@ namespace Kirinji.ReactiveTree.Test
 
             history.Count().Is(2);
             var history0 = history.Values.ElementAt(0);
-            history0.Single().AreOldValuesArray.IsTrue();
-            history0.Single().AreNewValuesArray.IsTrue();
-            history0.Single().OldValues.Select(ac => ac.LeafValue).SequenceEqual(new[] { "0", "Zero" }).IsTrue();
-            history0.Single().NewValues.Select(ac => ac.LeafValue).SequenceEqual(new[] { "0", "Zero", "Empty" }).IsTrue();
+            history0.AreOldValuesArray.IsTrue();
+            history0.AreNewValuesArray.IsTrue();
+            history0.OldValues.Select(ac => ac.LeafValue).SequenceEqual(new[] { "0", "Zero" }).IsTrue();
+            history0.NewValues.Select(ac => ac.LeafValue).SequenceEqual(new[] { "0", "Zero", "Empty" }).IsTrue();
             var history2 = history.Values.ElementAt(1);
-            history2.Single().AreOldValuesArray.IsFalse();
-            history2.Single().AreNewValuesArray.IsTrue();
-            history2.Single().OldValues.IsNull();
-            history2.Single().NewValues.Select(ac => ac.LeafValue).SequenceEqual(new[] { "2", "Two" }).IsTrue();
+            history2.AreOldValuesArray.IsFalse();
+            history2.AreNewValuesArray.IsTrue();
+            history2.OldValues.IsNull();
+            history2.NewValues.Select(ac => ac.LeafValue).SequenceEqual(new[] { "2", "Two" }).IsTrue();
         }
 
         [TestMethod]
@@ -215,15 +215,15 @@ namespace Kirinji.ReactiveTree.Test
             node.SetSingleChild(1, new TreeElement<int, string>("1"));
             node.SetSingleChild(2, new TreeElement<int, string>("2"));
             var history0 = history.Values.ElementAt(0);
-            history0.Single().AreOldValuesArray.IsTrue();
-            history0.Single().AreNewValuesArray.IsFalse();
-            history0.Single().OldValues.Select(ac => ac.LeafValue).SequenceEqual(new[] { "0", "Zero" }).IsTrue();
-            history0.Single().NewValues.Single().LeafValue.Is("0");
+            history0.AreOldValuesArray.IsTrue();
+            history0.AreNewValuesArray.IsFalse();
+            history0.OldValues.Select(ac => ac.LeafValue).SequenceEqual(new[] { "0", "Zero" }).IsTrue();
+            history0.NewValues.Single().LeafValue.Is("0");
             var history1 = history.Values.ElementAt(1);
-            history1.Single().AreOldValuesArray.IsFalse();
-            history1.Single().AreNewValuesArray.IsFalse();
-            history1.Single().OldValues.IsNull();
-            history1.Single().NewValues.Single().LeafValue.Is("2");
+            history1.AreOldValuesArray.IsFalse();
+            history1.AreNewValuesArray.IsFalse();
+            history1.OldValues.IsNull();
+            history1.NewValues.Single().LeafValue.Is("2");
             history.Count().Is(2);
         }
 
@@ -354,61 +354,6 @@ namespace Kirinji.ReactiveTree.Test
             usersBirthHistory.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 1, 1 })).Value.LeafValue.CastOrDefault<string>().Is("2");
             usersBirthHistory.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 1, 2 })).Value.LeafValue.CastOrDefault<string>().Is("2");
             usersBirthHistory.Count().Is(6);
-        }
-
-        [TestMethod]
-        public void ModifyTreeAsSeriesTest()
-        {
-            var tree = new TreeElement<int, string>();
-            tree[1] = new TreeElement<int, string>("1");
-            tree[2] = new TreeElement<int, string>("2");
-            tree[3] = new TreeElement<int, string>("3");
-
-            var history = tree.ChildrenChanged.SubscribeHistory();
-            tree.ModifyTreeAsSeries(t =>
-                {
-                    t[1] = new TreeElement<int, string>("one");
-                    t[2] = new TreeElement<int, string>("TWO");
-                    t[2] = new TreeElement<int, string>("two");
-                });
-            tree.ModifyTreeAsSeries(t =>
-                {
-                    t[1] = new TreeElement<int, string>("only one!");
-                    t.ModifyTreeAsSeries(t2 => t[2] = new TreeElement<int, string>("not only one!")); // inner change will tied with same Id
-                });
-            var change1 = history.Values.ElementAt(0);
-            change1.Count().Is(2);
-            var change2 = history.Values.ElementAt(1);
-            change2.Count().Is(2);
-            history.Values.Count().Is(2);
-
-            var change1_key1 = change1.Single(cc => cc.Key == 1);
-            change1_key1.OldValues.Single().LeafValue.Is("1");
-            change1_key1.NewValues.Single().LeafValue.Is("one");
-            change1_key1.AreOldValuesArray.IsFalse();
-            change1_key1.AreNewValuesArray.IsFalse();
-
-            var change1_key2 = change1.Single(cc => cc.Key == 2);
-            change1_key2.OldValues.Single().LeafValue.Is("2");
-            change1_key2.NewValues.Single().LeafValue.Is("two");
-            change1_key2.AreOldValuesArray.IsFalse();
-            change1_key2.AreNewValuesArray.IsFalse();
-
-            var change2_key1 = change2.Single(cc => cc.Key == 1);
-            change2_key1.OldValues.Single().LeafValue.Is("one");
-            change2_key1.NewValues.Single().LeafValue.Is("only one!");
-            change2_key1.AreOldValuesArray.IsFalse();
-            change2_key1.AreNewValuesArray.IsFalse();
-
-            var change2_key2 = change2.Single(cc => cc.Key == 2);
-            change2_key2.OldValues.Single().LeafValue.Is("two");
-            change2_key2.NewValues.Single().LeafValue.Is("not only one!");
-            change2_key2.AreOldValuesArray.IsFalse();
-            change2_key2.AreNewValuesArray.IsFalse();
-
-            new[] { change1.Id, change1_key1.Id, change1_key2.Id }.Distinct().Count().Is(1);
-            new[] { change2.Id, change2_key1.Id, change2_key2.Id }.Distinct().Count().Is(1);
-            change1.Id.IsNot(change2.Id);
         }
 
         [TestMethod]
