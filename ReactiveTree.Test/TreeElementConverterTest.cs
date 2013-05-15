@@ -26,12 +26,13 @@ namespace Kirinji.ReactiveTree.Test
     ]
 }";
             var tree = TreeElementConverter.ConvertJson(jsonText);
-            tree[TreeElementConverter.RootId]["original"].LeafValue.CastOrDefault<string>().Is("http://www.foo.com/");
-            tree[TreeElementConverter.RootId]["response"].LeafValue.IsNull();
-            tree[TreeElementConverter.RootId]
-                .GetArrayChildOrDefault("location")
+            tree.NodeChildren[TreeElementConverter.RootId].NodeChildren["original"].LeafValue.CastOrDefault<string>().Is("http://www.foo.com/");
+            tree.NodeChildren[TreeElementConverter.RootId].NodeChildren["response"].LeafValue.IsNull();
+            tree.NodeChildren[TreeElementConverter.RootId]
+                .NodeChildren["location"]
+                .Array
                 .First()
-                .GetArrayChildOrDefault(TreeElementConverter.NestedId)
+                .Array
                 .First()
                 .LeafValue
                 .CastOrNull<double>()

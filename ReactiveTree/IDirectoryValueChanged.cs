@@ -5,33 +5,40 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
-using Kirinji.ReactiveTree.TreeElements;
+using Kirinji.ReactiveTree.TreeStructures;
 
 namespace Kirinji.ReactiveTree
 {
     [ContractClass(typeof(IDirectoryValueChangedContract<,>))]
     public interface IDirectoryValueChanged<TKey, TValue>
     {
-        GrandChildrenContainer<TKey, TValue> GetValue(IEnumerable<TKey> keyDirectory);
-        IObservable<GrandChildrenContainer<TKey, TValue>> ValueChanged(IEnumerable<TKey> keyDirectory);
+        IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories);
+        IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories);
     }
 
     #region IDirectoryValueChanged contract binding
     [ContractClassFor(typeof(IDirectoryValueChanged<,>))]
     abstract class IDirectoryValueChangedContract<TKey, TValue> : IDirectoryValueChanged<TKey, TValue>
     {
-        IObservable<GrandChildrenContainer<TKey, TValue>> IDirectoryValueChanged<TKey, TValue>.ValueChanged(IEnumerable<TKey> keyDirectory)
+        public IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories)
         {
-            Contract.Requires<ArgumentNullException>(keyDirectory != null);
-            Contract.Ensures(Contract.Result<IObservable<GrandChildrenContainer<TKey, TValue>>>() != null);
+            Contract.Requires<ArgumentNullException>(directories != null);
+            Contract.Requires(Contract.ForAll(directories, dir => dir != null && Contract.ForAll(dir, key => key != null)));
+            Contract.Ensures(Contract.Result<IObservable<IEnumerable<ElementDirectory<TKey, TValue>>>>() != null);
+            // For all IObservable values, all keys and values must not be null.
+
+            // If keysDirectories 
 
             throw new NotImplementedException();
         }
 
-        public GrandChildrenContainer<TKey, TValue> GetValue(IEnumerable<TKey> keyDirectory)
+        public IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories)
         {
-            Contract.Requires<ArgumentNullException>(keyDirectory != null);
-            Contract.Ensures(Contract.Result<GrandChildrenContainer<TKey, TValue>>() != null);
+            Contract.Requires<ArgumentNullException>(directories != null);
+            Contract.Requires(Contract.ForAll(directories, dir => dir != null && Contract.ForAll(dir, key => key != null)));
+            Contract.Ensures(Contract.Result<IEnumerable<ElementDirectory<TKey, TValue>>>() != null);
+            // Contract.Ensures are not fully implemented.
+            // All keys and values must not be null.
 
             throw new NotImplementedException();
         }
@@ -40,40 +47,112 @@ namespace Kirinji.ReactiveTree
 
     public static class IDirectoryValueChangedExtensions
     {
-        public static IObservable<GrandChildrenContainer<TKey, TValue>> ValueChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params TKey[] keyDirectory)
+        public static IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyArray<NodeKeyOrArrayIndex<TKey>>[] directories)
         {
             Contract.Requires<ArgumentNullException>(source != null);
-            Contract.Requires<ArgumentNullException>(keyDirectory != null);
-            Contract.Ensures(Contract.Result<IObservable<GrandChildrenContainer<TKey, TValue>>>() != null);
+            Contract.Requires<ArgumentNullException>(directories != null);
+            Contract.Ensures(Contract.Result<IObservable<IEnumerable<ElementDirectory<TKey, TValue>>>>() != null);
 
-            return source.ValueChanged(keyDirectory.AsEnumerable());
+            return source.ValuesChanged(directories.AsEnumerable());
         }
 
-        public static GrandChildrenContainer<TKey, TValue> GetValue<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params TKey[] keyDirectory)
+        public static IObservable<ElementDirectory<TKey, TValue>> ValueChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, KeyArray<NodeKeyOrArrayIndex<TKey>> directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
-            Contract.Requires<ArgumentNullException>(keyDirectory != null);
-            Contract.Ensures(Contract.Result<GrandChildrenContainer<TKey, TValue>>() != null);
+            Contract.Requires<ArgumentNullException>(directory != null);
+            Contract.Ensures(Contract.Result<IObservable<ElementDirectory<TKey, TValue>>>() != null);
 
-            return source.GetValue(keyDirectory.AsEnumerable());
+            return source.ValuesChanged(new[] { directory }).Select(dic => dic.SingleOrDefault()).Where(x => x != null);
         }
 
-        public static IObservable<GrandChildrenContainer<TKey, TValue>> GetValueAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, IEnumerable<TKey> keyDirectory)
+        public static IObservable<ElementDirectory<TKey, TValue>> ValueChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, IEnumerable<NodeKeyOrArrayIndex<TKey>> directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
-            Contract.Requires<ArgumentNullException>(keyDirectory != null);
-            Contract.Ensures(Contract.Result<IObservable<GrandChildrenContainer<TKey, TValue>>>() != null);
+            Contract.Requires<ArgumentNullException>(directory != null);
+            Contract.Ensures(Contract.Result<IObservable<ElementDirectory<TKey, TValue>>>() != null);
 
-            return Observable.Merge(Observable.Return(source.GetValue(keyDirectory)), source.ValueChanged(keyDirectory));
+            return source.ValueChanged(new KeyArray<NodeKeyOrArrayIndex<TKey>>(directory));
         }
 
-        public static IObservable<GrandChildrenContainer<TKey, TValue>> GetValueAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params TKey[] keyDirectory)
+        public static IObservable<ElementDirectory<TKey, TValue>> ValueChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params NodeKeyOrArrayIndex<TKey>[] directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
-            Contract.Requires<ArgumentNullException>(keyDirectory != null);
-            Contract.Ensures(Contract.Result<IObservable<GrandChildrenContainer<TKey, TValue>>>() != null);
+            Contract.Requires<ArgumentNullException>(directory != null);
+            Contract.Ensures(Contract.Result<IObservable<ElementDirectory<TKey, TValue>>>() != null);
 
-            return source.GetValueAndChanged(keyDirectory.AsEnumerable());
+            return source.ValueChanged(directory.AsEnumerable());
+        }
+
+
+        public static IEnumerable<ElementDirectory<TKey, TValue>> GetValues<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyArray<NodeKeyOrArrayIndex<TKey>>[] directories)
+        {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(directories != null);
+            Contract.Ensures(Contract.Result<IEnumerable<ElementDirectory<TKey, TValue>>>() != null);
+
+            return source.GetValues(directories.AsEnumerable());
+        }
+
+        public static ElementDirectory<TKey, TValue> GetValue<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, KeyArray<NodeKeyOrArrayIndex<TKey>> directory)
+        {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(directory != null);
+
+            return source.GetValues(new[] { directory }).SingleOrDefault();
+        }
+
+        public static ElementDirectory<TKey, TValue> GetValue<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, IEnumerable<NodeKeyOrArrayIndex<TKey>> directory)
+        {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(directory != null);
+
+            return source.GetValue(new KeyArray<NodeKeyOrArrayIndex<TKey>>(directory));
+        }
+
+        public static ElementDirectory<TKey, TValue> GetValue<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params NodeKeyOrArrayIndex<TKey>[] directory)
+        {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(directory != null);
+            Contract.Ensures(Contract.Result<ElementDirectory<TKey, TValue>>() != null);
+
+            return source.GetValue(directory.AsEnumerable());
+        }
+
+
+        public static IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> GetValuesAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyArray<NodeKeyOrArrayIndex<TKey>>[] directories)
+        {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(directories != null);
+            Contract.Ensures(Contract.Result<IObservable<IEnumerable<ElementDirectory<TKey, TValue>>>>() != null);
+
+            return Observable.Merge(Observable.Return(source.GetValues(directories)), source.ValuesChanged(directories));
+        }
+
+        public static IObservable<ElementDirectory<TKey, TValue>> GetValueAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, KeyArray<NodeKeyOrArrayIndex<TKey>> directory)
+        {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(directory != null);
+            Contract.Ensures(Contract.Result<IObservable<ElementDirectory<TKey, TValue>>>() != null);
+
+            return Observable.Merge(Observable.Return(source.GetValue(directory)), source.ValueChanged(directory));
+        }
+
+        public static IObservable<ElementDirectory<TKey, TValue>> GetValueAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, IEnumerable<NodeKeyOrArrayIndex<TKey>> directory)
+        {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(directory != null);
+            Contract.Ensures(Contract.Result<IObservable<ElementDirectory<TKey, TValue>>>() != null);
+            
+            return Observable.Merge(Observable.Return(source.GetValue(directory)), source.ValueChanged(directory));
+        }
+
+        public static IObservable<ElementDirectory<TKey, TValue>> GetValueAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params NodeKeyOrArrayIndex<TKey>[] directory)
+        {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(directory != null);
+            Contract.Ensures(Contract.Result<IObservable<ElementDirectory<TKey, TValue>>>() != null);
+
+            return Observable.Merge(Observable.Return(source.GetValue(directory)), source.ValueChanged(directory));
         }
     }
 }

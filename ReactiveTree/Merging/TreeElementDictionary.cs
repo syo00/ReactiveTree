@@ -1,5 +1,4 @@
-﻿using Kirinji.ReactiveTree.TreeElements;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
@@ -7,77 +6,38 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Kirinji.LightWands;
+using Kirinji.ReactiveTree.TreeStructures;
 
 namespace Kirinji.ReactiveTree.Merging
 {
     /// <summary>Add or merge tree elements by comparing key.</summary>
-    internal class TreeElementDictionary<TKey, TElementKey, TElementValue>
+    internal class TreeElementDictionary<TDictionaryKey, TElementKey, TElementValue>
     {
-        public class TreeElementAndNotifierPair
-        {
-            public TreeElementAndNotifierPair(TKey key, TreeElement<TElementKey, TElementValue> treeElement)
-            {
-                Contract.Requires<ArgumentNullException>(key != null);
-                Contract.Requires<ArgumentNullException>(treeElement != null);
+        Func<TreeElement<TElementKey, TElementValue>, TDictionaryKey> keySelector;
+        Func<TDictionaryKey, bool> keyFilter;
+        IEqualityComparer<TDictionaryKey> keyComparer;
+        IDictionary<TDictionaryKey, WeakReference<TreeElementNotifier<TElementKey, TElementValue>>> treeElementsList;
 
-                this.Key = key;
-                this.TreeElement = treeElement;
-                this.Notifier = new TreeElementNotifier<TElementKey, TElementValue>(treeElement);
-            }
-
-            [ContractInvariantMethod]
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Required for code contracts.")]
-            private void ObjectInvariant()
-            {
-                Contract.Invariant(this.TreeElement != null);
-                Contract.Invariant(this.Notifier != null);
-                Contract.Invariant(this.Key != null);
-            }
-
-            public TKey Key
-            {
-                get;
-                private set;
-            }
-
-            public TreeElement<TElementKey, TElementValue> TreeElement
-            {
-                get;
-                private set;
-            }
-
-            public TreeElementNotifier<TElementKey, TElementValue> Notifier
-            {
-                get;
-                private set;
-            }
-        }
-
-        Func<TreeElement<TElementKey, TElementValue>, TKey> keySelector;
-        Func<TKey, bool> keyFilter;
-        IEqualityComparer<TKey> keyComparer;
-        IDictionary<TKey, WeakReference<TreeElementAndNotifierPair>> treeElementsList;
-
-        public TreeElementDictionary(Func<TreeElement<TElementKey, TElementValue>, TKey> keySelector)
+        public TreeElementDictionary(Func<TreeElement<TElementKey, TElementValue>, TDictionaryKey> keySelector)
             : this(keySelector, _ => true, null)
         {
             Contract.Requires<ArgumentNullException>(keySelector != null);
         }
 
-        public TreeElementDictionary(Func<TreeElement<TElementKey, TElementValue>, TKey> keySelector, IEqualityComparer<TKey> keyComparer)
+        public TreeElementDictionary(Func<TreeElement<TElementKey, TElementValue>, TDictionaryKey> keySelector, IEqualityComparer<TDictionaryKey> keyComparer)
             : this(keySelector, _ => true, keyComparer)
         {
             Contract.Requires<ArgumentNullException>(keySelector != null);
         }
 
-        public TreeElementDictionary(Func<TreeElement<TElementKey, TElementValue>, TKey> keySelector, Func<TKey, bool> keyFilter)
+        public TreeElementDictionary(Func<TreeElement<TElementKey, TElementValue>, TDictionaryKey> keySelector, Func<TDictionaryKey, bool> keyFilter)
             : this(keySelector, keyFilter, null)
         {
             Contract.Requires<ArgumentNullException>(keySelector != null);
             Contract.Requires<ArgumentNullException>(keyFilter != null);
         }
 
-        public TreeElementDictionary(Func<TreeElement<TElementKey, TElementValue>, TKey> keySelector, Func<TKey, bool> keyFilter, IEqualityComparer<TKey> keyComparer)
+        public TreeElementDictionary(Func<TreeElement<TElementKey, TElementValue>, TDictionaryKey> keySelector, Func<TDictionaryKey, bool> keyFilter, IEqualityComparer<TDictionaryKey> keyComparer)
         {
             Contract.Requires<ArgumentNullException>(keySelector != null);
             Contract.Requires<ArgumentNullException>(keyFilter != null);
@@ -85,7 +45,7 @@ namespace Kirinji.ReactiveTree.Merging
             this.keySelector = keySelector;
             this.keyFilter = keyFilter;
             this.keyComparer = keyComparer;
-            this.treeElementsList = new Dictionary<TKey, WeakReference<TreeElementAndNotifierPair>>(keyComparer);
+            this.treeElementsList = new Dictionary<TDictionaryKey, WeakReference<TreeElementNotifier<TElementKey, TElementValue>>>(keyComparer);
         }
 
         public static TreeElementDictionary<TreeElement<TElementKey, TElementValue>, TElementKey, TElementValue> CreateDefault()
@@ -103,7 +63,9 @@ namespace Kirinji.ReactiveTree.Merging
 
         /// <summary>Add or merge tree elements by comparing key. When the key is matched, tree element is merged. When not, added.</summary>
         /// <returns>When the key is matched, returns the merged tree element and its notifier. When not, returns same  tree element and its notifier.</returns>
-        public TreeElementAndNotifierPair Merge(TreeElement<TElementKey, TElementValue> treeElement)
+        public TreeElementNotifier<TElementKey, TElementValue> Merge(
+            TreeElement<TElementKey, TElementValue> treeElement,
+            Func<TreeElement<TElementKey, TElementValue>,TreeElement<TElementKey, TElementValue>,bool> mergeComparer)
         {
             Contract.Requires<ArgumentNullException>(treeElement != null);
            
@@ -111,26 +73,26 @@ namespace Kirinji.ReactiveTree.Merging
             if (key == null) throw new ArgumentNullException("keySelector must not return null.");
             if (!this.keyFilter(key)) return null;
             var matchedWeakReference = this.treeElementsList.ValueOrDefault(key);
-            TreeElementAndNotifierPair matchedPair;
-            if (matchedWeakReference != null && matchedWeakReference.TryGetTarget(out matchedPair))
+            TreeElementNotifier<TElementKey, TElementValue> matched;
+            if (matchedWeakReference != null && matchedWeakReference.TryGetTarget(out matched))
             {
-                matchedPair.TreeElement.MergeWithArraySelector(treeElement);
-                return matchedPair;
+                matched.CurrentTree.Merge(treeElement, mergeComparer);
+                return matched;
             }
             else
             {
-                var notifier = new TreeElementAndNotifierPair(key, treeElement);
-                this.treeElementsList[key] = new WeakReference<TreeElementAndNotifierPair>(notifier);
+                var notifier = new TreeElementNotifier<TElementKey, TElementValue>(treeElement);
+                this.treeElementsList[key] = new WeakReference<TreeElementNotifier<TElementKey, TElementValue>>(notifier);
                 return notifier;
             }
         }
 
-        public IDictionary<TKey, WeakReference<TreeElementAndNotifierPair>> GetAllTreeElement()
+        public IDictionary<TDictionaryKey, WeakReference<TreeElementNotifier<TElementKey, TElementValue>>> GetAllTreeElement()
         {
-            return new Dictionary<TKey, WeakReference<TreeElementAndNotifierPair>>(this.treeElementsList);
+            return new Dictionary<TDictionaryKey, WeakReference<TreeElementNotifier<TElementKey, TElementValue>>>(this.treeElementsList);
         }
 
-        public WeakReference<TreeElementAndNotifierPair> ValueOrDefault(TKey key)
+        public WeakReference<TreeElementNotifier<TElementKey, TElementValue>> ValueOrDefault(TDictionaryKey key)
         {
             Contract.Requires<ArgumentNullException>(key != null);
 

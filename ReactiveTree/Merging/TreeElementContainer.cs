@@ -1,4 +1,4 @@
-﻿using Kirinji.ReactiveTree.TreeElements;
+﻿using Kirinji.ReactiveTree.TreeStructures;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -12,30 +12,33 @@ namespace Kirinji.ReactiveTree.Merging
     // TreeElementNotifier の、TreeElement の変更通知をしないバージョン
     internal class TreeElementContainer<TKey, TValue> : IDirectoryValueChanged<TKey, TValue>
     {
+        private TreeElement<TKey, TValue> currentTree;
+
         public TreeElementContainer(TreeElement<TKey, TValue> initElement)
         {
             Contract.Requires<ArgumentNullException>(initElement != null);
 
-            this.p_currentTree = initElement;
+            this.currentTree = initElement;
         }
 
         [ContractInvariantMethod]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Required for code contracts.")]
         private void ObjectInvariant()
         {
-            Contract.Invariant(this.p_currentTree != null);
+            Contract.Invariant(currentTree != null);
         }
 
-        public GrandChildrenContainer<TKey, TValue> GetValue(IEnumerable<TKey> keyDirectory)
+        public IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories)
         {
-            return this.p_currentTree.GetAllGrandChildren(keyDirectory);
+            return Observable.Return(GetValues(directories));
         }
 
-        public IObservable<GrandChildrenContainer<TKey, TValue>> ValueChanged(IEnumerable<TKey> keyDirectory)
+        public IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories)
         {
-            return Observable.Empty<GrandChildrenContainer<TKey, TValue>>();
+            return directories
+                .Select(d => new { Key = d, Value = currentTree.GetOrDefault(d) })
+                .Select(a => new ElementDirectory<TKey, TValue>(a.Key, a.Value))
+                .ToArray();
         }
-
-        private TreeElement<TKey, TValue> p_currentTree;
     }
 }

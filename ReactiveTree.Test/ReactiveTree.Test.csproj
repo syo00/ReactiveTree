@@ -136,12 +136,12 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ChainingAssertion.MSTest.cs" />
-    <Compile Include="GrandChildrenContainerTest.cs" />
-    <Compile Include="GrandChildTest.cs" />
+    <None Include="GrandChildrenContainerTest.cs_" />
+    <None Include="GrandChildTest.cs_" />
     <Compile Include="LightWands\LightWands.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleJsonDataObjectTest.cs" />
-    <Compile Include="TreeElementChangesObserverTest.cs" />
+    <None Include="TreeElementChangesObserverTest.cs_" />
     <Compile Include="TreeElementConverterTest.cs" />
     <Compile Include="TreeElementNotifierTest.cs" />
     <Compile Include="TreeElementTest.cs" />

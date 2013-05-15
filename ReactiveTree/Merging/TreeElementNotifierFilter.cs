@@ -1,5 +1,4 @@
-﻿using Kirinji.ReactiveTree.TreeElements;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -7,19 +6,18 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Kirinji.LightWands;
+using Kirinji.ReactiveTree.TreeStructures;
 
 namespace Kirinji.ReactiveTree.Merging
 {
     /// <summary>Make IDirectoryValueChanged not to subscribe changes in specified directory,</summary>
-    internal class TreeElementNotifierFilter<TKey, TValue> : Disposable, IDirectoryValueChanged<TKey, TValue>, IStopSubscription
+    internal class TreeElementNotifierFilter<TKey, TValue> : Disposable, IDirectoryValueChanged<TKey, TValue>
     {
         readonly IDirectoryValueChanged<TKey, TValue> inner;
-        readonly Func<IEnumerable<TKey>, bool> filter;
-        bool skipCastingToStopSubscription;
-        IStopSubscription castedInnerCache;
+        readonly Func<IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>>, bool> filter;
 
         /// <param name="filter">Parameter gives directory. Return false to ignore subscription.</param>
-        public TreeElementNotifierFilter(IDirectoryValueChanged<TKey, TValue> inner, Func<IEnumerable<TKey>, bool> filter)
+        public TreeElementNotifierFilter(IDirectoryValueChanged<TKey, TValue> inner, Func<IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>>, bool> filter)
         {
             Contract.Requires<ArgumentNullException>(inner != null);
             Contract.Requires<ArgumentNullException>(filter != null);
@@ -36,54 +34,15 @@ namespace Kirinji.ReactiveTree.Merging
             Contract.Invariant(this.filter != null);
         }
 
-
-        public GrandChildrenContainer<TKey, TValue> GetValue(IEnumerable<TKey> keyDirectory)
+        public IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories)
         {
-            return this.inner.GetValue(keyDirectory);
+            if (filter(directories)) return this.inner.ValuesChanged(directories);
+            return Observable.Empty<IEnumerable<ElementDirectory<TKey, TValue>>>();
         }
 
-        public IObservable<GrandChildrenContainer<TKey, TValue>> ValueChanged(IEnumerable<TKey> keyDirectory)
+        public IEnumerable<TreeStructures.ElementDirectory<TKey, TValue>> GetValues(IEnumerable<TreeStructures.KeyArray<TreeStructures.NodeKeyOrArrayIndex<TKey>>> directories)
         {
-            if (this.filter(keyDirectory)) return this.inner.ValueChanged(keyDirectory);
-            return Observable.Empty<GrandChildrenContainer<TKey, TValue>>();
-        }
-
-        public bool StopSubscription()
-        {
-            var castedInner = AsStopSubscription();
-            if (castedInner == null) return false;
-            return castedInner.StopSubscription();
-        }
-
-        public bool IsSubscribing
-        {
-            get
-            {
-                var castedInner = AsStopSubscription();
-                if (castedInner == null) return false;
-                return castedInner.IsSubscribing;
-            }
-        }
-
-        private IStopSubscription AsStopSubscription()
-        {
-            if (this.skipCastingToStopSubscription) return null;
-            if (this.castedInnerCache == null)
-            {
-                this.castedInnerCache = this.inner as IStopSubscription;
-                if (this.castedInnerCache == null)
-                {
-                    this.skipCastingToStopSubscription = true;
-                    return null;
-                }
-            }
-            return this.castedInnerCache;
-        }
-
-        protected override void OnDisposingManagedResources()
-        {
-            StopSubscription();
-            TryDispose(this.inner);
+            return this.inner.GetValues(directories);
         }
     }
 }

@@ -1956,6 +1956,7 @@ namespace Kirinji.LightWands
                 if (index == -1)
                 {
                     Add(key, value);
+                    return;
                 }
                 this.values[index] = value;
                 this.keyValuePairs[index] = new KeyValuePair<TKey, TValue>(this.keys[index], value);

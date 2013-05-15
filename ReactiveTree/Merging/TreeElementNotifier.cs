@@ -6,30 +6,38 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
-using Kirinji.ReactiveTree.TreeElements;
 using Kirinji.LightWands;
+using Kirinji.ReactiveTree.TreeStructures;
+using System.Collections.Specialized;
 
 namespace Kirinji.ReactiveTree.Merging
 {
-    internal class TreeElementNotifier<TKey, TValue> : Disposable, IDirectoryValueChanged<TKey, TValue>, IStopSubscription
+    internal class TreeElementNotifier<K, V> : Disposable, IDirectoryValueChanged<K, V>
     {
-        /// <summary>Pairs of directory and its subject. Keys indicate its directory.</summary>
-        private IDictionary<IEnumerable<TKey>, TreeElementChangesObserver<TKey, TValue>> watchingJsonAndDirectory
-            = new Dictionary<IEnumerable<TKey>, TreeElementChangesObserver<TKey, TValue>>(EqualityComparer.EnumerableOf<TKey>());
+        private bool isModifyingStraight;
+        private ISubject<IEnumerable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>> modifyingStraightSubject = new Subject<IEnumerable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>>();
+        private IObservable<IEnumerable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>> rawValueChanged;
 
         public TreeElementNotifier()
-            : this(new TreeElement<TKey, TValue>())
+            : this(new TreeElement<K, V>())
         {
             
         }
 
-        public TreeElementNotifier(TreeElement<TKey, TValue> initElement)
+        public TreeElementNotifier(TreeElement<K, V> initElement)
         {
             Contract.Requires<ArgumentNullException>(initElement != null);
             Contract.Requires<ArgumentException>(initElement.Type == ElementType.Node, "Must be a node.");
 
-            this.p_currentTree = initElement;
-            this.IsSubscribing = true;
+            this.currentTree = initElement;
+            this.rawValueChanged
+                = CurrentTree
+                .GrandChildrenChanged
+                .Where(_ => !isModifyingStraight)
+                .Select(x => new[] { x })
+                .Merge(modifyingStraightSubject)
+                .Publish()
+                .RefCount();
         }
 
         [ContractInvariantMethod]
@@ -37,63 +45,86 @@ namespace Kirinji.ReactiveTree.Merging
         private void ObjectInvariant()
         {
             Contract.Invariant(this.CurrentTree != null);
-            Contract.Invariant(this.watchingJsonAndDirectory != null);
         }
 
-        public GrandChildrenContainer<TKey, TValue> GetValue(IEnumerable<TKey> keyDirectory)
-        {
-            ThrowExceptionIfDisposed();
-            return this.CurrentTree.GetAllGrandChildren(keyDirectory);
-        }
-
-        public IObservable<GrandChildrenContainer<TKey, TValue>> ValueChanged(IEnumerable<TKey> keyDirectory)
-        {
-            // No contracts written here because interface always defines them.
-
-            ThrowExceptionIfDisposed();
-            if (this.watchingJsonAndDirectory.ContainsKey(keyDirectory) != true)
-            {
-                this.watchingJsonAndDirectory[keyDirectory] =
-                    new TreeElementChangesObserver<TKey, TValue>(this.CurrentTree, keyDirectory);
-            }
-            var obs = this.watchingJsonAndDirectory[keyDirectory];
-            return obs.ValueChanged;
-        }
-
-        private TreeElement<TKey, TValue> p_currentTree;
-        public TreeElement<TKey, TValue> CurrentTree
+        private TreeElement<K, V> currentTree;
+        public TreeElement<K, V> CurrentTree
         {
             get
             {
-                Contract.Ensures(Contract.Result<TreeElement<TKey, TValue>>() != null);
+                Contract.Ensures(Contract.Result<TreeElement<K, V>>() != null);
 
                 ThrowExceptionIfDisposed();
-                return this.p_currentTree;
+                return this.currentTree;
             }
         }
 
-        protected override void OnDisposingManagedResources()
+        public void ModifyCurrentTreeStraight(Action<TreeElement<K, V>> modifyingAction)
         {
-            StopSubscription();
-            base.OnDisposingManagedResources();
-            this.watchingJsonAndDirectory.ForEach(p => p.Value.Dispose());
+            Contract.Requires<ArgumentNullException>(modifyingAction != null);
+
+            isModifyingStraight = true;
+            var l = new List<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>();
+            var s = CurrentTree.GrandChildrenChanged.Subscribe(l.Add);
+            modifyingAction(CurrentTree);
+            s.Dispose();
+            modifyingStraightSubject.OnNext(l);
+            isModifyingStraight = false;
         }
 
-        public bool StopSubscription()
+        public IObservable<IEnumerable<ElementDirectory<K, V>>> ValuesChanged(IEnumerable<KeyArray<NodeKeyOrArrayIndex<K>>> directories)
         {
-            if (this.IsSubscribing)
-            {
-                this.watchingJsonAndDirectory.ForEach(p => p.Value.StopSubscription());
-                this.IsSubscribing = false;
-                return true;
-            }
-            return false;
+            return rawValueChanged
+                .Select(pairsChanged =>
+                {
+                    var rtn = new List<ElementDirectory<K, V>>();
+                    foreach (var dir in directories)
+                    {
+                        // If in case that dir is [1, 2, 3]:
+                        // [1, 2] is matched
+                        // [1, 2, 3] is matched
+                        // [1, 2, 4] is not matched
+                        // [1, 3] is not matched
+
+                        var isMatched = pairsChanged.Any(ed =>
+                            {
+                                var dirEnumerator = dir.GetEnumerator();
+                                var changedDirEnumerator = ed.Key.GetEnumerator();
+                                while (true)
+                                {
+                                    if (changedDirEnumerator.MoveNext())
+                                    {
+                                        if (!dirEnumerator.MoveNext())
+                                        {
+                                            return false;
+                                        }
+                                        if (!Object.Equals(changedDirEnumerator.Current, dirEnumerator.Current))
+                                        {
+                                            return false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        return true;
+                                    }
+                                }
+                            });
+
+                        if (isMatched)
+                        {
+                            rtn.Add(new ElementDirectory<K, V>(new KeyArray<NodeKeyOrArrayIndex<K>>(dir), CurrentTree.GetOrDefault(dir)));
+                        }
+                    }
+                    return rtn;
+                });
         }
 
-        public bool IsSubscribing
+        public IEnumerable<ElementDirectory<K, V>> GetValues(IEnumerable<KeyArray<NodeKeyOrArrayIndex<K>>> directories)
         {
-            get;
-            private set;
+            return directories
+                .Select(d => new { Key = d, Value = CurrentTree.GetOrDefault(d) })
+                .Select(a => new ElementDirectory<K, V>(a.Key, a.Value))
+                .ToArray();
         }
     }
 }

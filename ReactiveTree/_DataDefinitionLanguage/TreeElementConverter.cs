@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics.Contracts;
-using Kirinji.ReactiveTree.TreeElements;
+using Kirinji.ReactiveTree.TreeStructures;
 
 namespace Kirinji.ReactiveTree
 {
@@ -12,7 +12,6 @@ namespace Kirinji.ReactiveTree
     public static class TreeElementConverter
     {
         public static readonly string RootId = "$!root";
-        public static readonly string NestedId = "$!nested";
 
         /// <summary>Converts JSON to TreeElement.</summary>
         public static TreeElement<string, IDataObject> ConvertJson(string jsonText)
@@ -34,28 +33,14 @@ namespace Kirinji.ReactiveTree
             var jObject = json as IDictionary<string, object>;
             if (jObject != null)
             {
-                var nodes = jObject.SelectMany(p =>
-                {
-                    var jArrayInNode = p.Value as IList<object>;
-                    if (jArrayInNode == null)
-                    {
-                        return new[] { 
-                            new KeyValuePair<string, TreeElement<string, IDataObject>>(p.Key, ConvertJsonCore(p.Value))};
-                    }
-                    else
-                    {
-                        return jArrayInNode.Select(t =>
-                            new KeyValuePair<string, TreeElement<string, IDataObject>>(p.Key, ConvertJsonCore(t)));
-                    }
-                });
-                return new TreeElement<string, IDataObject>(true, nodes);
+                var nodes = jObject.Select(p => new KeyValuePair<string, TreeElement<string, IDataObject>>(p.Key, ConvertJsonCore(p.Value)));
+                return new TreeElement<string, IDataObject>(nodes);
             }
             var jArray = json as IList<object>;
             if (jArray != null)
             {
-                var d = new Dictionary<string, object>();
-                d[NestedId] = json;
-                return ConvertJsonCore(d);
+                var array = jArray.Select(ConvertJsonCore);
+                return new TreeElement<string, IDataObject>(array);
             }
 
             if (json == null) return new TreeElement<string, IDataObject>((IDataObject)null);

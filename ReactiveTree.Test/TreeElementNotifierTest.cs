@@ -4,8 +4,8 @@ using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Reactive.Linq;
+using Kirinji.ReactiveTree.TreeStructures;
 using Kirinji.ReactiveTree.Merging;
-using Kirinji.ReactiveTree.TreeElements;
 using Kirinji.LightWands;
 using Kirinji.LightWands.Tests;
 
@@ -40,88 +40,36 @@ namespace Kirinji.ReactiveTree.Test
 }
 ";
             var rootId = TreeElementConverter.RootId;
-            var j = new TreeElementNotifier<string, IDataObject>(TreeElementConverter.ConvertJson("{ }"));
-            var nameHistory = j.GetValueAndChanged(rootId, "name").DistinctUntilChanged().SubscribeHistory();
-            var userIdHistory = j.GetValueAndChanged(rootId, "user", "id").DistinctUntilChanged().SubscribeHistory();
+            var j = new TreeElementNotifier<string, IDataObject>(TreeElementConverter.ConvertJson("{ }").NodeChildren[rootId]);
+            j.GetValue(new NodeKeyOrArrayIndex<string>("name")).Value.IsNull();
+            j.GetValue(new NodeKeyOrArrayIndex<string>("user"), new NodeKeyOrArrayIndex<string>("id")).Value.IsNull();
 
-            j.GetValue(rootId, "name").Any().IsFalse();
-            j.GetValue(rootId, "user", "id").Any().IsFalse();
+            var nameHistory = j.ValueChanged(new NodeKeyOrArrayIndex<string>("name")).SubscribeHistory();
+            var userIdHistory = j.ValueChanged(new NodeKeyOrArrayIndex<string>("user"), new NodeKeyOrArrayIndex<string>("id")).SubscribeHistory();
 
-            j.CurrentTree[rootId].MergeWithArraySelector(TreeElementConverter.ConvertJson(json1)[rootId], (t, d) => t.GetSingleValue("id"));
-            j.GetValue(rootId, "name").Single().Value.LeafValue.CastOrDefault<string>().Is("Yamada");
-            j.GetValue(rootId, "user", "id").Any().IsFalse();
+            j.ModifyCurrentTreeStraight(tree => tree.Merge(TreeElementConverter.ConvertJson(json1).NodeChildren[rootId], (x, y) => false));
+            j.ModifyCurrentTreeStraight(tree => tree.Merge(TreeElementConverter.ConvertJson(json2).NodeChildren[rootId], (x, y) => false));
+            j.ModifyCurrentTreeStraight(tree => tree.Merge(TreeElementConverter.ConvertJson(json3).NodeChildren[rootId], (x, y) => false));
 
-            j.CurrentTree[rootId].MergeWithArraySelector(TreeElementConverter.ConvertJson(json2)[rootId], (t, d) => t.GetSingleValue("id"));
-            j.GetValue(rootId, "name").Single().Value.LeafValue.CastOrDefault<string>().Is("Yamada");
-            j.GetValue(rootId, "user", "id").Single().Value.LeafValue.CastOrDefault<int>().Is(1);
+            userIdHistory.Values.ElementAt(0).Value.IsNull();
+            userIdHistory.Values.ElementAt(1).Value.LeafValue.CastOrDefault<int>().Is(1);
+            userIdHistory.Values.ElementAt(2).Value.LeafValue.CastOrDefault<int>().Is(2);
+            userIdHistory.Values.ElementAt(0).Directory.Is(userIdHistory.Values.ElementAt(1).Directory);
+            userIdHistory.Values.ElementAt(1).Directory.Is(userIdHistory.Values.ElementAt(2).Directory);
+            userIdHistory.Values.Count().Is(3);
 
-            j.CurrentTree[rootId].MergeWithArraySelector(TreeElementConverter.ConvertJson(json3)[rootId], (t, d) => t.GetSingleValue("id"));
-            j.GetValue(rootId, "name").Single().Value.LeafValue.CastOrDefault<string>().Is("Mark");
-            j.GetValue(rootId, "user", "id").Single().Value.LeafValue.CastOrDefault<int>().Is(2);
-
-            nameHistory.ElementAt(0).Value.Any().IsFalse();
-            nameHistory.ElementAt(1).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, null })).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
-            nameHistory.ElementAt(2).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, null })).Value.LeafValue.CastOrDefault<string>().Is("Mark");
-            nameHistory.Count().Is(3);
-            userIdHistory.ElementAt(0).Value.Any().IsFalse();
-            userIdHistory.ElementAt(1).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, null, null })).Value.LeafValue.CastOrNull<int>().Is(1);
-            userIdHistory.ElementAt(2).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, null, null })).Value.LeafValue.CastOrNull<int>().Is(2);
-            userIdHistory.Count().Is(3);
+            nameHistory.Values.ElementAt(0).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
+            nameHistory.Values.ElementAt(1).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
+            nameHistory.Values.ElementAt(2).Value.LeafValue.CastOrDefault<string>().Is("Mark");
+            nameHistory.Values.ElementAt(0).Directory.Is(nameHistory.Values.ElementAt(1).Directory);
+            nameHistory.Values.ElementAt(1).Directory.Is(nameHistory.Values.ElementAt(2).Directory);
+            nameHistory.Values.Count().Is(3);
+            
+            j.GetValue(new NodeKeyOrArrayIndex<string>("name")).Value.LeafValue.CastOrDefault<string>().Is("Mark");
         }
 
         [TestMethod]
-        public void MergeJsonTest()
-        {
-            var json1 =
-@"{
-    ""id"": 123, 
-    ""name"": ""Yamada"",
-    ""client"": {
-        ""id"": 100
-    }
-}
-";
-            var json2 =
-@"{
-    ""id"": 123, 
-    ""client"": {
-        ""id"": 200
-    },
-    ""user"": {
-        ""id"": 1
-    }
-}
-";
-            var rootId = TreeElementConverter.RootId;
-            var j = new TreeElementNotifier<string, IDataObject>(TreeElementConverter.ConvertJson("{ }"));
-            var idHistory = j.GetValueAndChanged(rootId, "id").DistinctUntilChanged().SubscribeHistory();
-            var nameHistory = j.GetValueAndChanged(rootId, "name").DistinctUntilChanged().SubscribeHistory();
-            var userIdHistory = j.GetValueAndChanged(rootId, "user", "id").DistinctUntilChanged().SubscribeHistory();
-            var clientIdHistory = j.GetValueAndChanged(rootId, "client", "id").DistinctUntilChanged().SubscribeHistory();
-
-            j.CurrentTree[rootId].MergeWithArraySelector(TreeElementConverter.ConvertJson(json1)[rootId], (x, y) => new object());
-            j.CurrentTree[rootId].MergeWithArraySelector(TreeElementConverter.ConvertJson(json2)[rootId], (x, y) => new object());
-
-            idHistory.ElementAt(0).Value.Any().IsFalse();
-            idHistory.ElementAt(1).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, null })).Value.LeafValue.CastOrNull<int>().Is(123);
-            idHistory.Count().Is(2);
-
-            nameHistory.ElementAt(0).Value.Any().IsFalse();
-            nameHistory.ElementAt(1).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, null })).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
-            nameHistory.Count().Is(2);
-
-            userIdHistory.ElementAt(0).Value.Any().IsFalse();
-            userIdHistory.ElementAt(1).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, null, null })).Value.LeafValue.CastOrNull<int>().Is(1);
-            userIdHistory.Count().Is(2);
-
-            clientIdHistory.ElementAt(0).Value.Any().IsFalse();
-            clientIdHistory.ElementAt(1).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, null, null })).Value.LeafValue.CastOrNull<int>().Is(100);
-            clientIdHistory.ElementAt(2).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, null, null })).Value.LeafValue.CastOrNull<int>().Is(200);
-            clientIdHistory.Count().Is(3);
-        }
-
-        [TestMethod]
-        public void MergeJsonTest2()
+        public void MergeJsonTestForTweet()
         {
             string json1 =
             #region json1 text
@@ -305,79 +253,16 @@ namespace Kirinji.ReactiveTree.Test
             var rootId = TreeElementConverter.RootId;
             var n = new TreeElementNotifier<string, IDataObject>(TreeElementConverter.ConvertJson(json1));
 
-            var idHistory = n.GetValueAndChanged(rootId, "id").DistinctUntilChanged().SubscribeHistory();
-            var userNameHistory = n.GetValueAndChanged(rootId, "user", "name").DistinctUntilChanged().SubscribeHistory();
-            var favoritedHistory = n.GetValueAndChanged(rootId, "favorited").DistinctUntilChanged().SubscribeHistory();
-            n.CurrentTree[rootId].MergeWithArraySelector(TreeElementConverter.ConvertJson(json1)[rootId], (x, y) => new object());
-            n.CurrentTree[rootId].MergeWithArraySelector(TreeElementConverter.ConvertJson(json2)[rootId], (x, y) => new object());
+            var idHistory = n.ValueChanged(new NodeKeyOrArrayIndex<string>(rootId), new NodeKeyOrArrayIndex<string>("id")).SubscribeHistory();
+            var userNameHistory = n.ValueChanged(new NodeKeyOrArrayIndex<string>(rootId), new NodeKeyOrArrayIndex<string>("user"), new NodeKeyOrArrayIndex<string>("name")).SubscribeHistory();
+            var favoritedHistory = n.ValueChanged(new NodeKeyOrArrayIndex<string>(rootId), new NodeKeyOrArrayIndex<string>("favorited")).SubscribeHistory();
 
-            idHistory.Values.Select(gc => gc.Single().Value.LeafValue.CastOrNull<long>()).Is(240558470661799936);
-            userNameHistory.Values.Select(gc => gc.Single().Value.LeafValue.CastOrDefault<string>()).Is("OAuth Dancer", "OAuth Player");
-            userNameHistory.Values.Select(gc => gc.Single().Value.LeafValue.CastOrDefault<string>()).Is("OAuth Dancer", "OAuth Player");
-            favoritedHistory.Values.Select(gc => gc.Single().Value.LeafValue.CastOrNull<bool>()).Is(false, true);
-        }
+            n.CurrentTree.Merge(TreeElementConverter.ConvertJson(json1), (x, y) => false);
+            n.CurrentTree.Merge(TreeElementConverter.ConvertJson(json2), (x, y) => false);
 
-        [TestMethod]
-        public void ModifyArrayTest()
-        {
-            var json = TreeElementConverter.ConvertJson(
-@"{
-    ""a"": 123, 
-    ""name"": [""Yamada"", ""Mark""]
-}
-"
-                );
-
-            var rootId = TreeElementConverter.RootId;
-            var j = new TreeElementNotifier<string, IDataObject>(json);
-            var nameHistory = j.GetValueAndChanged(rootId, "name").DistinctUntilChanged().SubscribeHistory();
-            var aHistory = j.GetValueAndChanged(rootId, "a").DistinctUntilChanged().SubscribeHistory();
-            var bHistory = j.GetValueAndChanged(rootId, "b").DistinctUntilChanged().SubscribeHistory();
-
-            j.CurrentTree[rootId].ModifyArrayChild("name", l => l.Add(new TreeElement<string, IDataObject>(new DataObject("Yamada"))));
-            j.CurrentTree[rootId].ModifyArrayChild("name", l => l.Add(new TreeElement<string, IDataObject>(new DataObject("Tanaka"))));
-            j.CurrentTree[rootId].ModifyArrayChild("name", l => l.RemoveLast());
-            j.CurrentTree[rootId].ModifyArrayChild("a", _ => new[] { new TreeElement<string, IDataObject>(new DataObject(1)) });
-            j.CurrentTree[rootId].ModifyArrayChild("b", _ => new[] { new TreeElement<string, IDataObject>(new DataObject(2)) });
-
-            nameHistory.ElementAt(0).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 0 })).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
-            nameHistory.ElementAt(0).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 1 })).Value.LeafValue.CastOrDefault<string>().Is("Mark");
-            nameHistory.ElementAt(0).Value.Count().Is(2);
-
-            nameHistory.ElementAt(1).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 0 })).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
-            nameHistory.ElementAt(1).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 1 })).Value.LeafValue.CastOrDefault<string>().Is("Mark");
-            nameHistory.ElementAt(1).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 2 })).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
-            nameHistory.ElementAt(1).Value.Count().Is(3);
-
-            nameHistory.ElementAt(2).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 0 })).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
-            nameHistory.ElementAt(2).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 1 })).Value.LeafValue.CastOrDefault<string>().Is("Mark");
-            nameHistory.ElementAt(2).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 2 })).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
-            nameHistory.ElementAt(2).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 3 })).Value.LeafValue.CastOrDefault<string>().Is("Tanaka");
-            nameHistory.ElementAt(2).Value.Count().Is(4);
-
-            nameHistory.ElementAt(3).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 0 })).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
-            nameHistory.ElementAt(3).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 1 })).Value.LeafValue.CastOrDefault<string>().Is("Mark");
-            nameHistory.ElementAt(3).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 2 })).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
-            nameHistory.ElementAt(3).Value.Count().Is(3);
-
-            nameHistory.Count().Is(4);
-
-
-            aHistory.ElementAt(0).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, null })).Value.LeafValue.CastOrNull<int>().Is(123);
-            aHistory.ElementAt(0).Value.Count().Is(1);
-
-            aHistory.ElementAt(1).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 0 })).Value.LeafValue.CastOrNull<int>().Is(1);
-            aHistory.ElementAt(1).Value.Count().Is(1);
-
-            aHistory.Count().Is(2);
-
-
-            bHistory.ElementAt(0).Value.Any().IsFalse();
-
-            bHistory.ElementAt(1).Value.Single(gc => gc.Indexes.SequenceEqual(new int?[] { null, 0 })).Value.LeafValue.CastOrNull<int>().Is(2);
-            bHistory.ElementAt(1).Value.Count().Is(1);
-
-            bHistory.Count().Is(2);
+            idHistory.Values.Select(x => x.Value.LeafValue.CastOrDefault<long>()).Is(240558470661799936, 240558470661799936);
+            userNameHistory.Values.Select(x => x.Value.LeafValue.CastOrDefault<string>()).Is("OAuth Dancer", "OAuth Player");
+            favoritedHistory.Values.Select(x => x.Value.LeafValue.CastOrNull<bool>()).Is(false, true);
         }
     }
 }
