@@ -115,7 +115,6 @@
     <Compile Include="TreeStructures\KeyArray.cs" />
     <Compile Include="TreeStructures\NodeKeyOrArrayIndex.cs" />
     <Compile Include="TreeStructures\TreeElementChildrenChanged.cs" />
-    <Compile Include="TreeStructures\_.cs" />
     <Compile Include="TreeStructures\PairsChanged.cs" />
     <Compile Include="TreeStructures\TreeElementExtensions.cs" />
     <Compile Include="TreeStructures\_Anonymous\DisposableCollection.cs" />

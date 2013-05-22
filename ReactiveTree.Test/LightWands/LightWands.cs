@@ -17,12 +17,12 @@
 //-----------------------------------------------------------------------
 
 
-// VERSION: 0.1.1
+// VERSION: 0.1.3
 
 
 /***** public or internal ******/
 // NOTE: uncomment the following line to make LightWands class internal.
-#define USE_INTERNAL
+//#define USE_INTERNAL
 
 
 /***** targeting projects ******/
@@ -168,24 +168,35 @@ namespace Kirinji.LightWands.Tests
         }
 
         /// <summary>Gets values history.</summary>
-        public IEnumerable<T> Values
+        public IReadOnlyList<T> Values
         {
             get
             {
                 return this.notifications
                     .Where(n => n.Kind == NotificationKind.OnNext)
-                    .Select(n => n.Value);
+                    .Select(n => n.Value)
+                    .ToList();
             }
         }
 
         /// <summary>Gets exceptions history.</summary>
-        public IEnumerable<Exception> Exceptions
+        public IReadOnlyList<Exception> Exceptions
         {
             get
             {
                 return this.notifications
                     .Where(n => n.Kind == NotificationKind.OnError)
-                    .Select(n => n.Exception);
+                    .Select(n => n.Exception)
+                    .ToList();
+            }
+        }
+
+        /// <summary>Gets all notifications.</summary>
+        public IReadOnlyList<Notification<T>> Notifications
+        {
+            get
+            {
+                return notifications.ToList();
             }
         }
 
@@ -204,11 +215,13 @@ namespace Kirinji.LightWands.Tests
             this.notifications.Clear();
         }
 
+        [Obsolete]
         public IEnumerator<Notification<T>> GetEnumerator()
         {
             return this.notifications.GetEnumerator();
         }
 
+        [Obsolete]
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -229,31 +242,49 @@ namespace Kirinji.LightWands.Tests
     {
         public static object Invoke<T>(this PrivateObject source, string name, T param)
         {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(name != null);
+
             return source.Invoke(name, new Type[] { typeof(T) }, new object[] { param });
         }
 
         public static object Invoke<T1, T2>(this PrivateObject source, string name, T1 param1, T2 param2)
         {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(name != null);
+
             return source.Invoke(name, new Type[] { typeof(T1), typeof(T2) }, new object[] { param1, param2 });
         }
 
         public static object Invoke<T1, T2, T3>(this PrivateObject source, string name, T1 param1, T2 param2, T3 param3)
         {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(name != null);
+
             return source.Invoke(name, new Type[] { typeof(T1), typeof(T2), typeof(T3) }, new object[] { param1, param2, param3 });
         }
 
         public static object Invoke<T1, T2, T3, T4>(this PrivateObject source, string name, T1 param1, T2 param2, T3 param3, T4 param4)
         {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(name != null);
+
             return source.Invoke(name, new Type[] { typeof(T1), typeof(T2), typeof(T3), typeof(T4) }, new object[] { param1, param2, param3, param4 });
         }
 
         public static object Invoke<T1, T2, T3, T4, T5>(this PrivateObject source, string name, T1 param1, T2 param2, T3 param3, T4 param4, T5 param5)
         {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(name != null);
+
             return source.Invoke(name, new Type[] { typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5) }, new object[] { param1, param2, param3, param4, param5 });
         }
 
         public static object Invoke<T1, T2, T3, T4, T5, T6>(this PrivateObject source, string name, T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6)
         {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(name != null);
+
             return source.Invoke(name, new Type[] { typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6) }, new object[] { param1, param2, param3, param4, param5, param6 });
         }
     }
