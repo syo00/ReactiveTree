@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Kirinji.ReactiveTree.Merging
 {
     // TreeElementNotifier の、TreeElement の変更通知をしないバージョン
-    internal class TreeElementContainer<TKey, TValue> : IDirectoryValueChanged<TKey, TValue>
+    public class TreeElementContainer<TKey, TValue> : IDirectoryValueChanged<TKey, TValue>
     {
         private TreeElement<TKey, TValue> currentTree;
 

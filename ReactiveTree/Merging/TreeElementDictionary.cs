@@ -11,7 +11,7 @@ using Kirinji.ReactiveTree.TreeStructures;
 namespace Kirinji.ReactiveTree.Merging
 {
     /// <summary>Add or merge tree elements by comparing key.</summary>
-    internal class TreeElementDictionary<TDictionaryKey, TElementKey, TElementValue>
+    public class TreeElementDictionary<TDictionaryKey, TElementKey, TElementValue>
     {
         Func<TreeElement<TElementKey, TElementValue>, TDictionaryKey> keySelector;
         Func<TDictionaryKey, bool> keyFilter;
