@@ -12,7 +12,7 @@ using System.Collections.Specialized;
 
 namespace Kirinji.ReactiveTree.Merging
 {
-    internal class TreeElementNotifier<K, V> : Disposable, IDirectoryValueChanged<K, V>
+    public class TreeElementNotifier<K, V> : Disposable, IDirectoryValueChanged<K, V>
     {
         private bool isModifyingStraight;
         private ISubject<IEnumerable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>> modifyingStraightSubject = new Subject<IEnumerable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>>();

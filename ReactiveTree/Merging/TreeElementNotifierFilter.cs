@@ -11,7 +11,7 @@ using Kirinji.ReactiveTree.TreeStructures;
 namespace Kirinji.ReactiveTree.Merging
 {
     /// <summary>Make IDirectoryValueChanged not to subscribe changes in specified directory,</summary>
-    internal class TreeElementNotifierFilter<TKey, TValue> : Disposable, IDirectoryValueChanged<TKey, TValue>
+    public class TreeElementNotifierFilter<TKey, TValue> : Disposable, IDirectoryValueChanged<TKey, TValue>
     {
         readonly IDirectoryValueChanged<TKey, TValue> inner;
         readonly Func<IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>>, bool> filter;
