@@ -176,25 +176,25 @@ namespace Kirinji.ReactiveTree.TreeStructures
             }
         }
 
-        private IObservable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>> grandChildrenChanged;
+        private IObservable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>> grandChildrenChanged;
 
         /// <summary>Pushes all changed grand children. When changed, returns its element's children all array elements or node children.</summary>
-        public IObservable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>> GrandChildrenChanged
+        public IObservable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>> GrandChildrenChanged
         {
             get
             {
-                Contract.Ensures(Contract.Result<IObservable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>>() != null);
+                Contract.Ensures(Contract.Result<IObservable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>>() != null);
 
                 if (grandChildrenChanged == null)
                 {
-                    IObservable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>> thisChildrenChanged;
-                    IObservable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>> childrenGrandChildrenChanged;
+                    IObservable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>> thisChildrenChanged;
+                    IObservable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>> childrenGrandChildrenChanged;
 
                     if (Type == ElementType.Array)
                     {
                         thisChildrenChanged = ArrayChanged.Select(c => 
-                            new KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>(
-                            new KeyArray<NodeKeyOrArrayIndex<K>>(),
+                            new KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>(
+                            new KeyArray<KeyOrIndex<K>>(),
                             c));
 
                         childrenGrandChildrenChanged = ArrayChanged
@@ -205,8 +205,8 @@ namespace Kirinji.ReactiveTree.TreeStructures
                                         pair.Value
                                         .GrandChildrenChanged
                                         .Select(p =>
-                                            new KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>(
-                                            new KeyArray<NodeKeyOrArrayIndex<K>>(new[] { new NodeKeyOrArrayIndex<K>(pair.Key) }.Concat(p.Key)),
+                                            new KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>(
+                                            new KeyArray<KeyOrIndex<K>>(new[] { new KeyOrIndex<K>(pair.Key) }.Concat(p.Key)),
                                             p.Value))
                                       )
                             )
@@ -217,8 +217,8 @@ namespace Kirinji.ReactiveTree.TreeStructures
                     else if (Type == ElementType.Node)
                     {
                         thisChildrenChanged = NodeChildrenChanged.Select(c => 
-                            new KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>(
-                            new KeyArray<NodeKeyOrArrayIndex<K>>(),
+                            new KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>(
+                            new KeyArray<KeyOrIndex<K>>(),
                             c));
 
                         childrenGrandChildrenChanged = NodeChildrenChanged
@@ -229,8 +229,8 @@ namespace Kirinji.ReactiveTree.TreeStructures
                                         pair.Value
                                         .GrandChildrenChanged
                                         .Select(p =>
-                                            new KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>(
-                                            new KeyArray<NodeKeyOrArrayIndex<K>>(new[] { new NodeKeyOrArrayIndex<K>(pair.Key) }.Concat(p.Key)),
+                                            new KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>(
+                                            new KeyArray<KeyOrIndex<K>>(new[] { new KeyOrIndex<K>(pair.Key) }.Concat(p.Key)),
                                             p.Value))
                                       )
                             )
@@ -240,7 +240,7 @@ namespace Kirinji.ReactiveTree.TreeStructures
                     }
                     else
                     {
-                        grandChildrenChanged = Observable.Empty<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>();
+                        grandChildrenChanged = Observable.Empty<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>();
                     }
                 }
 

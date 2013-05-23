@@ -15,8 +15,8 @@ namespace Kirinji.ReactiveTree.Merging
     public class TreeElementNotifier<K, V> : Disposable, IDirectoryValueChanged<K, V>
     {
         private bool isModifyingStraight;
-        private ISubject<IEnumerable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>> modifyingStraightSubject = new Subject<IEnumerable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>>();
-        private IObservable<IEnumerable<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>> rawValueChanged;
+        private ISubject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>> modifyingStraightSubject = new Subject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>>();
+        private IObservable<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>> rawValueChanged;
 
         public TreeElementNotifier()
             : this(new TreeElement<K, V>())
@@ -64,7 +64,7 @@ namespace Kirinji.ReactiveTree.Merging
             Contract.Requires<ArgumentNullException>(modifyingAction != null);
 
             isModifyingStraight = true;
-            var l = new List<KeyValuePair<KeyArray<NodeKeyOrArrayIndex<K>>, NotifyCollectionChangedEventArgs>>();
+            var l = new List<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>();
             var s = CurrentTree.GrandChildrenChanged.Subscribe(l.Add);
             modifyingAction(CurrentTree);
             s.Dispose();
@@ -72,7 +72,7 @@ namespace Kirinji.ReactiveTree.Merging
             isModifyingStraight = false;
         }
 
-        public IObservable<IEnumerable<ElementDirectory<K, V>>> ValuesChanged(IEnumerable<KeyArray<NodeKeyOrArrayIndex<K>>> directories)
+        public IObservable<IEnumerable<ElementDirectory<K, V>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
         {
             return rawValueChanged
                 .Select(pairsChanged =>
@@ -112,14 +112,14 @@ namespace Kirinji.ReactiveTree.Merging
 
                         if (isMatched)
                         {
-                            rtn.Add(new ElementDirectory<K, V>(new KeyArray<NodeKeyOrArrayIndex<K>>(dir), CurrentTree.GetOrDefault(dir)));
+                            rtn.Add(new ElementDirectory<K, V>(new KeyArray<KeyOrIndex<K>>(dir), CurrentTree.GetOrDefault(dir)));
                         }
                     }
                     return rtn;
                 });
         }
 
-        public IEnumerable<ElementDirectory<K, V>> GetValues(IEnumerable<KeyArray<NodeKeyOrArrayIndex<K>>> directories)
+        public IEnumerable<ElementDirectory<K, V>> GetValues(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
         {
             return directories
                 .Select(d => new { Key = d, Value = CurrentTree.GetOrDefault(d) })

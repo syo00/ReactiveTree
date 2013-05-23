@@ -115,7 +115,7 @@
     <Compile Include="Merging\TreeElementNotifierFilter.cs" />
     <Compile Include="TreeStructures\ElementDirectory.cs" />
     <Compile Include="TreeStructures\KeyArray.cs" />
-    <Compile Include="TreeStructures\NodeKeyOrArrayIndex.cs" />
+    <Compile Include="TreeStructures\KeyOrIndex.cs" />
     <Compile Include="TreeStructures\TreeElementExtensions.cs" />
     <Compile Include="TreeStructures\ElementType.cs" />
     <Compile Include="TreeStructures\TreeElement.cs" />

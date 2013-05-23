@@ -9,14 +9,14 @@ namespace Kirinji.ReactiveTree.TreeStructures
 {
     public class ElementDirectory<TKey, TValue> : IEquatable<ElementDirectory<TKey, TValue>>
     {
-        public ElementDirectory(IEnumerable<NodeKeyOrArrayIndex<TKey>> directory, TreeElement<TKey, TValue> value)
-            : this(new KeyArray<NodeKeyOrArrayIndex<TKey>>(directory), value)
+        public ElementDirectory(IEnumerable<KeyOrIndex<TKey>> directory, TreeElement<TKey, TValue> value)
+            : this(new KeyArray<KeyOrIndex<TKey>>(directory), value)
         {
             Contract.Requires<ArgumentNullException>(directory != null);
             Contract.Requires<ArgumentNullException>(Contract.ForAll(directory, d => d != null));
         }
 
-        public ElementDirectory(KeyArray<NodeKeyOrArrayIndex<TKey>> directory, TreeElement<TKey, TValue> value)
+        public ElementDirectory(KeyArray<KeyOrIndex<TKey>> directory, TreeElement<TKey, TValue> value)
         {
             Contract.Requires<ArgumentNullException>(directory != null);
             Contract.Requires<ArgumentNullException>(Contract.ForAll(directory, d => d != null));
@@ -25,13 +25,13 @@ namespace Kirinji.ReactiveTree.TreeStructures
             this.Value = value;
         }
 
-        KeyArray<NodeKeyOrArrayIndex<TKey>> directory;
-        public KeyArray<NodeKeyOrArrayIndex<TKey>> Directory
+        KeyArray<KeyOrIndex<TKey>> directory;
+        public KeyArray<KeyOrIndex<TKey>> Directory
         {
             get
             {
-                Contract.Ensures(Contract.Result<IEnumerable<NodeKeyOrArrayIndex<TKey>>>() != null);
-                Contract.Ensures(Contract.ForAll(Contract.Result<IEnumerable<NodeKeyOrArrayIndex<TKey>>>(), d => d != null));
+                Contract.Ensures(Contract.Result<IEnumerable<KeyOrIndex<TKey>>>() != null);
+                Contract.Ensures(Contract.ForAll(Contract.Result<IEnumerable<KeyOrIndex<TKey>>>(), d => d != null));
 
                 return directory;
             }

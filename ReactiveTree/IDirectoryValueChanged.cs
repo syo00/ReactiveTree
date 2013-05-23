@@ -12,15 +12,15 @@ namespace Kirinji.ReactiveTree
     [ContractClass(typeof(IDirectoryValueChangedContract<,>))]
     public interface IDirectoryValueChanged<TKey, TValue>
     {
-        IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories);
-        IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories);
+        IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories);
+        IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories);
     }
 
     #region IDirectoryValueChanged contract binding
     [ContractClassFor(typeof(IDirectoryValueChanged<,>))]
     abstract class IDirectoryValueChangedContract<TKey, TValue> : IDirectoryValueChanged<TKey, TValue>
     {
-        public IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories)
+        public IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
         {
             Contract.Requires<ArgumentNullException>(directories != null);
             Contract.Requires(Contract.ForAll(directories, dir => dir != null && Contract.ForAll(dir, key => key != null)));
@@ -32,7 +32,7 @@ namespace Kirinji.ReactiveTree
             throw new NotImplementedException();
         }
 
-        public IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories)
+        public IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
         {
             Contract.Requires<ArgumentNullException>(directories != null);
             Contract.Requires(Contract.ForAll(directories, dir => dir != null && Contract.ForAll(dir, key => key != null)));
@@ -47,7 +47,7 @@ namespace Kirinji.ReactiveTree
 
     public static class IDirectoryValueChangedExtensions
     {
-        public static IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyArray<NodeKeyOrArrayIndex<TKey>>[] directories)
+        public static IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyArray<KeyOrIndex<TKey>>[] directories)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directories != null);
@@ -56,7 +56,7 @@ namespace Kirinji.ReactiveTree
             return source.ValuesChanged(directories.AsEnumerable());
         }
 
-        public static IObservable<ElementDirectory<TKey, TValue>> ValueChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, KeyArray<NodeKeyOrArrayIndex<TKey>> directory)
+        public static IObservable<ElementDirectory<TKey, TValue>> ValueChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, KeyArray<KeyOrIndex<TKey>> directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -65,16 +65,16 @@ namespace Kirinji.ReactiveTree
             return source.ValuesChanged(new[] { directory }).Select(dic => dic.SingleOrDefault()).Where(x => x != null);
         }
 
-        public static IObservable<ElementDirectory<TKey, TValue>> ValueChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, IEnumerable<NodeKeyOrArrayIndex<TKey>> directory)
+        public static IObservable<ElementDirectory<TKey, TValue>> ValueChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, IEnumerable<KeyOrIndex<TKey>> directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
             Contract.Ensures(Contract.Result<IObservable<ElementDirectory<TKey, TValue>>>() != null);
 
-            return source.ValueChanged(new KeyArray<NodeKeyOrArrayIndex<TKey>>(directory));
+            return source.ValueChanged(new KeyArray<KeyOrIndex<TKey>>(directory));
         }
 
-        public static IObservable<ElementDirectory<TKey, TValue>> ValueChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params NodeKeyOrArrayIndex<TKey>[] directory)
+        public static IObservable<ElementDirectory<TKey, TValue>> ValueChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyOrIndex<TKey>[] directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -84,7 +84,7 @@ namespace Kirinji.ReactiveTree
         }
 
 
-        public static IEnumerable<ElementDirectory<TKey, TValue>> GetValues<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyArray<NodeKeyOrArrayIndex<TKey>>[] directories)
+        public static IEnumerable<ElementDirectory<TKey, TValue>> GetValues<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyArray<KeyOrIndex<TKey>>[] directories)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directories != null);
@@ -93,7 +93,7 @@ namespace Kirinji.ReactiveTree
             return source.GetValues(directories.AsEnumerable());
         }
 
-        public static ElementDirectory<TKey, TValue> GetValue<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, KeyArray<NodeKeyOrArrayIndex<TKey>> directory)
+        public static ElementDirectory<TKey, TValue> GetValue<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, KeyArray<KeyOrIndex<TKey>> directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -101,15 +101,15 @@ namespace Kirinji.ReactiveTree
             return source.GetValues(new[] { directory }).SingleOrDefault();
         }
 
-        public static ElementDirectory<TKey, TValue> GetValue<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, IEnumerable<NodeKeyOrArrayIndex<TKey>> directory)
+        public static ElementDirectory<TKey, TValue> GetValue<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, IEnumerable<KeyOrIndex<TKey>> directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
 
-            return source.GetValue(new KeyArray<NodeKeyOrArrayIndex<TKey>>(directory));
+            return source.GetValue(new KeyArray<KeyOrIndex<TKey>>(directory));
         }
 
-        public static ElementDirectory<TKey, TValue> GetValue<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params NodeKeyOrArrayIndex<TKey>[] directory)
+        public static ElementDirectory<TKey, TValue> GetValue<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyOrIndex<TKey>[] directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -119,7 +119,7 @@ namespace Kirinji.ReactiveTree
         }
 
 
-        public static IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> GetValuesAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyArray<NodeKeyOrArrayIndex<TKey>>[] directories)
+        public static IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> GetValuesAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyArray<KeyOrIndex<TKey>>[] directories)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directories != null);
@@ -128,7 +128,7 @@ namespace Kirinji.ReactiveTree
             return Observable.Merge(Observable.Return(source.GetValues(directories)), source.ValuesChanged(directories));
         }
 
-        public static IObservable<ElementDirectory<TKey, TValue>> GetValueAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, KeyArray<NodeKeyOrArrayIndex<TKey>> directory)
+        public static IObservable<ElementDirectory<TKey, TValue>> GetValueAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, KeyArray<KeyOrIndex<TKey>> directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -137,7 +137,7 @@ namespace Kirinji.ReactiveTree
             return Observable.Merge(Observable.Return(source.GetValue(directory)), source.ValueChanged(directory));
         }
 
-        public static IObservable<ElementDirectory<TKey, TValue>> GetValueAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, IEnumerable<NodeKeyOrArrayIndex<TKey>> directory)
+        public static IObservable<ElementDirectory<TKey, TValue>> GetValueAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, IEnumerable<KeyOrIndex<TKey>> directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -146,7 +146,7 @@ namespace Kirinji.ReactiveTree
             return Observable.Merge(Observable.Return(source.GetValue(directory)), source.ValueChanged(directory));
         }
 
-        public static IObservable<ElementDirectory<TKey, TValue>> GetValueAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params NodeKeyOrArrayIndex<TKey>[] directory)
+        public static IObservable<ElementDirectory<TKey, TValue>> GetValueAndChanged<TKey, TValue>(this IDirectoryValueChanged<TKey, TValue> source, params KeyOrIndex<TKey>[] directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);

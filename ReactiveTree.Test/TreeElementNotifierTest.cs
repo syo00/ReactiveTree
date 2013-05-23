@@ -41,11 +41,11 @@ namespace Kirinji.ReactiveTree.Test
 ";
             var rootId = TreeElementConverter.RootId;
             var j = new TreeElementNotifier<string, IDataObject>(TreeElementConverter.ConvertJson("{ }").NodeChildren[rootId]);
-            j.GetValue(new NodeKeyOrArrayIndex<string>("name")).Value.IsNull();
-            j.GetValue(new NodeKeyOrArrayIndex<string>("user"), new NodeKeyOrArrayIndex<string>("id")).Value.IsNull();
+            j.GetValue(new KeyOrIndex<string>("name")).Value.IsNull();
+            j.GetValue(new KeyOrIndex<string>("user"), new KeyOrIndex<string>("id")).Value.IsNull();
 
-            var nameHistory = j.ValueChanged(new NodeKeyOrArrayIndex<string>("name")).SubscribeHistory();
-            var userIdHistory = j.ValueChanged(new NodeKeyOrArrayIndex<string>("user"), new NodeKeyOrArrayIndex<string>("id")).SubscribeHistory();
+            var nameHistory = j.ValueChanged(new KeyOrIndex<string>("name")).SubscribeHistory();
+            var userIdHistory = j.ValueChanged(new KeyOrIndex<string>("user"), new KeyOrIndex<string>("id")).SubscribeHistory();
 
             j.ModifyCurrentTreeStraight(tree => tree.Merge(TreeElementConverter.ConvertJson(json1).NodeChildren[rootId], (x, y) => false));
             j.ModifyCurrentTreeStraight(tree => tree.Merge(TreeElementConverter.ConvertJson(json2).NodeChildren[rootId], (x, y) => false));
@@ -65,7 +65,7 @@ namespace Kirinji.ReactiveTree.Test
             nameHistory.Values.ElementAt(1).Directory.Is(nameHistory.Values.ElementAt(2).Directory);
             nameHistory.Values.Count().Is(3);
             
-            j.GetValue(new NodeKeyOrArrayIndex<string>("name")).Value.LeafValue.CastOrDefault<string>().Is("Mark");
+            j.GetValue(new KeyOrIndex<string>("name")).Value.LeafValue.CastOrDefault<string>().Is("Mark");
         }
 
         [TestMethod]
@@ -253,9 +253,9 @@ namespace Kirinji.ReactiveTree.Test
             var rootId = TreeElementConverter.RootId;
             var n = new TreeElementNotifier<string, IDataObject>(TreeElementConverter.ConvertJson(json1));
 
-            var idHistory = n.ValueChanged(new NodeKeyOrArrayIndex<string>(rootId), new NodeKeyOrArrayIndex<string>("id")).SubscribeHistory();
-            var userNameHistory = n.ValueChanged(new NodeKeyOrArrayIndex<string>(rootId), new NodeKeyOrArrayIndex<string>("user"), new NodeKeyOrArrayIndex<string>("name")).SubscribeHistory();
-            var favoritedHistory = n.ValueChanged(new NodeKeyOrArrayIndex<string>(rootId), new NodeKeyOrArrayIndex<string>("favorited")).SubscribeHistory();
+            var idHistory = n.ValueChanged(new KeyOrIndex<string>(rootId), new KeyOrIndex<string>("id")).SubscribeHistory();
+            var userNameHistory = n.ValueChanged(new KeyOrIndex<string>(rootId), new KeyOrIndex<string>("user"), new KeyOrIndex<string>("name")).SubscribeHistory();
+            var favoritedHistory = n.ValueChanged(new KeyOrIndex<string>(rootId), new KeyOrIndex<string>("favorited")).SubscribeHistory();
 
             n.CurrentTree.Merge(TreeElementConverter.ConvertJson(json1), (x, y) => false);
             n.CurrentTree.Merge(TreeElementConverter.ConvertJson(json2), (x, y) => false);

@@ -28,12 +28,12 @@ namespace Kirinji.ReactiveTree.Merging
             Contract.Invariant(currentTree != null);
         }
 
-        public IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories)
+        public IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
         {
             return Observable.Return(GetValues(directories));
         }
 
-        public IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<NodeKeyOrArrayIndex<TKey>>> directories)
+        public IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
         {
             return directories
                 .Select(d => new { Key = d, Value = currentTree.GetOrDefault(d) })

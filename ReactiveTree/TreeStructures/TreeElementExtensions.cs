@@ -80,7 +80,7 @@ namespace Kirinji.ReactiveTree.TreeStructures
             }
         }
 
-        public static TreeElement<TKey, TValue> GetOrDefault<TKey, TValue>(this TreeElement<TKey, TValue> source, IEnumerable<NodeKeyOrArrayIndex<TKey>> directory)
+        public static TreeElement<TKey, TValue> GetOrDefault<TKey, TValue>(this TreeElement<TKey, TValue> source, IEnumerable<KeyOrIndex<TKey>> directory)
         {
             Contract.Requires<ArgumentNullException>(directory != null);
             Contract.Requires<ArgumentNullException>(Contract.ForAll(directory, key => key != null));
@@ -110,7 +110,7 @@ namespace Kirinji.ReactiveTree.TreeStructures
             return s;
         }
 
-        public static TreeElement<TKey, TValue> GetOrDefault<TKey, TValue>(this TreeElement<TKey, TValue> source, params NodeKeyOrArrayIndex<TKey>[] directory)
+        public static TreeElement<TKey, TValue> GetOrDefault<TKey, TValue>(this TreeElement<TKey, TValue> source, params KeyOrIndex<TKey>[] directory)
         {
             Contract.Requires<ArgumentNullException>(directory != null);
             Contract.Requires<ArgumentNullException>(Contract.ForAll(directory, key => key != null));

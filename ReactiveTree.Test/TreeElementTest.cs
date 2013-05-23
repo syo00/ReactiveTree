@@ -134,8 +134,8 @@ namespace Kirinji.ReactiveTree.Test
             var merging = CreateMergingTree();
             merged.Merge(merging, (x, y) =>
                 {
-                    var xv = x.GetOrDefault(new NodeKeyOrArrayIndex<string>("id"));
-                    var yv = y.GetOrDefault(new NodeKeyOrArrayIndex<string>("id"));
+                    var xv = x.GetOrDefault(new KeyOrIndex<string>("id"));
+                    var yv = y.GetOrDefault(new KeyOrIndex<string>("id"));
                     if (xv == null) return false;
                     return Object.Equals(xv, yv);
                 });

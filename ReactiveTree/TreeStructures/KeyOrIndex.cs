@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace Kirinji.ReactiveTree.TreeStructures
 {
-    public class NodeKeyOrArrayIndex<TKey> : IEquatable<NodeKeyOrArrayIndex<TKey>>
+    public class KeyOrIndex<TKey> : IEquatable<KeyOrIndex<TKey>>
     {
         readonly bool isArray;
         readonly TKey nodeKey;
         readonly int arrayIndex;
 
-        public NodeKeyOrArrayIndex(TKey nodeKey)
+        public KeyOrIndex(TKey nodeKey)
         {
             this.nodeKey = nodeKey;
         }
 
-        public NodeKeyOrArrayIndex(int arrayIndex)
+        public KeyOrIndex(int arrayIndex)
         {
             this.arrayIndex = arrayIndex;
             this.isArray = true;
@@ -81,10 +81,10 @@ namespace Kirinji.ReactiveTree.TreeStructures
                 return false;
             }
 
-            return Equals((NodeKeyOrArrayIndex<TKey>)obj);
+            return Equals((KeyOrIndex<TKey>)obj);
         }
 
-        public bool Equals(NodeKeyOrArrayIndex<TKey> other)
+        public bool Equals(KeyOrIndex<TKey> other)
         {
             if (other == null) return false;
             if (this.IsArray == other.IsArray)
@@ -124,6 +124,23 @@ namespace Kirinji.ReactiveTree.TreeStructures
             {
                 return NodeKey == null ? "Null" : NodeKey.ToString();
             }
+        }
+    }
+
+    public static class KeyOrIndex
+    {
+        public static KeyOrIndex<T> Key<T>(T key)
+        {
+            Contract.Ensures(Contract.Result<KeyOrIndex<T>>() != null);
+
+            return new KeyOrIndex<T>(key);
+        }
+
+        public static KeyOrIndex<T> Index<T>(int index)
+        {
+            Contract.Ensures(Contract.Result<KeyOrIndex<T>>() != null);
+
+            return new KeyOrIndex<T>(index);
         }
     }
 }
