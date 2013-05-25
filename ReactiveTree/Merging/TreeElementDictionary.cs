@@ -76,7 +76,7 @@ namespace Kirinji.ReactiveTree.Merging
             TreeElementNotifier<TElementKey, TElementValue> matched;
             if (matchedWeakReference != null && matchedWeakReference.TryGetTarget(out matched))
             {
-                matched.CurrentTree.Merge(treeElement, mergeComparer);
+                matched.ModifyCurrentTreeStraight(tree => tree.Merge(treeElement, mergeComparer));
                 return matched;
             }
             else
@@ -87,7 +87,7 @@ namespace Kirinji.ReactiveTree.Merging
             }
         }
 
-        public IDictionary<TDictionaryKey, WeakReference<TreeElementNotifier<TElementKey, TElementValue>>> GetAllTreeElement()
+        public IReadOnlyDictionary<TDictionaryKey, WeakReference<TreeElementNotifier<TElementKey, TElementValue>>> GetAllTreeElement()
         {
             return new Dictionary<TDictionaryKey, WeakReference<TreeElementNotifier<TElementKey, TElementValue>>>(this.treeElementsList);
         }

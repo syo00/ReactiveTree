@@ -12,7 +12,7 @@ using System.Collections.Specialized;
 
 namespace Kirinji.ReactiveTree.Merging
 {
-    public class TreeElementNotifier<K, V> : Disposable, IDirectoryValueChanged<K, V>
+    public class TreeElementNotifier<K, V> : IDirectoryValueChanged<K, V>
     {
         private bool isModifyingStraight;
         private ISubject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>> modifyingStraightSubject = new Subject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>>();
@@ -54,7 +54,6 @@ namespace Kirinji.ReactiveTree.Merging
             {
                 Contract.Ensures(Contract.Result<TreeElement<K, V>>() != null);
 
-                ThrowExceptionIfDisposed();
                 return this.currentTree;
             }
         }
