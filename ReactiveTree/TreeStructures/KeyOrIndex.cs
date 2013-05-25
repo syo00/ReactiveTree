@@ -74,6 +74,20 @@ namespace Kirinji.ReactiveTree.TreeStructures
             }
         }
 
+        public bool Is(int index)
+        {
+            if (IsNode) return false;
+
+            return Object.Equals(ArrayIndex, index);
+        }
+
+        public bool Is(TKey key)
+        {
+            if (IsArray) return false;
+
+            return Object.Equals(NodeKey, key);
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null || this.GetType() != obj.GetType())

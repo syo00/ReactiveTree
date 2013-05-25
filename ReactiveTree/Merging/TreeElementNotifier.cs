@@ -116,7 +116,8 @@ namespace Kirinji.ReactiveTree.Merging
                         }
                     }
                     return rtn;
-                });
+                })
+                .Where(list => list.Count != 0);
         }
 
         public IEnumerable<ElementDirectory<K, V>> GetValues(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
