@@ -9,6 +9,7 @@ using System.Reactive.Linq;
 using Kirinji.LightWands;
 using Kirinji.ReactiveTree.TreeStructures;
 using System.Collections.Specialized;
+using System.Reactive.Disposables;
 
 namespace Kirinji.ReactiveTree.Merging
 {
@@ -17,6 +18,8 @@ namespace Kirinji.ReactiveTree.Merging
         private bool isModifyingStraight;
         private ISubject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>> modifyingStraightSubject = new Subject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>>();
         private IObservable<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>> rawValueChanged;
+
+        private static IList<object> preventDisposingObjects = new List<object>(); // To prevent to be disposed as an weak reference element of TreeElementDictionary, add objects to this list. To change to be GCed, remove the objects from this list.
 
         public TreeElementNotifier()
             : this(new TreeElement<K, V>())
@@ -73,7 +76,9 @@ namespace Kirinji.ReactiveTree.Merging
 
         public IObservable<IEnumerable<ElementDirectory<K, V>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
         {
-            return rawValueChanged
+            preventDisposingObjects.Add(this);
+
+            var inner = rawValueChanged
                 .Select(pairsChanged =>
                 {
                     var rtn = new List<ElementDirectory<K, V>>();
@@ -117,6 +122,14 @@ namespace Kirinji.ReactiveTree.Merging
                     return rtn;
                 })
                 .Where(list => list.Count != 0);
+
+            return Observable.Create<IEnumerable<ElementDirectory<K, V>>>(observer =>
+                {
+                    var subscription = inner.Subscribe(observer);
+                    return new CompositeDisposable(
+                        subscription,
+                        System.Reactive.Disposables.Disposable.Create(() => preventDisposingObjects.Remove(this)));
+                });
         }
 
         public IEnumerable<ElementDirectory<K, V>> GetValues(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
