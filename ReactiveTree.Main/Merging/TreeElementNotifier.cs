@@ -13,7 +13,7 @@ using System.Reactive.Disposables;
 
 namespace Kirinji.ReactiveTree.Merging
 {
-    public class TreeElementNotifier<K, V> : IDirectoryValueChanged<K, V>
+    public class TreeElementNotifier<K, V> : IReactiveTree<KeyOrIndex<K>, TreeElement<K, V>>
     {
         private bool isModifyingStraight;
         private ISubject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>> modifyingStraightSubject = new Subject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>>();
@@ -74,15 +74,22 @@ namespace Kirinji.ReactiveTree.Merging
             isModifyingStraight = false;
         }
 
-        public IObservable<IEnumerable<ElementDirectory<K, V>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
+        public IReadOnlyDictionary<KeyArray<KeyOrIndex<K>>, TreeElement<K, V>> Values(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
+        {
+            return directories
+                .Select(d => new { Key = d, Value = CurrentTree.GetOrDefault(d) })
+                .ToDictionary(a => a.Key, a => a.Value);
+        }
+
+        public IObservable<IReadOnlyDictionary<KeyArray<KeyOrIndex<K>>, TreeElement<K, V>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
         {
             preventDisposingObjects.Add(this);
 
             var inner = rawValueChanged
                 .Select(pairsChanged =>
                 {
-                    var rtn = new List<ElementDirectory<K, V>>();
-                    foreach (var dir in directories)
+                    var rtn = new Dictionary<KeyArray<KeyOrIndex<K>>, TreeElement<K, V>>();
+                    foreach (var dir in directories.Distinct())
                     {
                         // If in case that dir is [1, 2, 3]:
                         // [1, 2] is matched
@@ -91,53 +98,45 @@ namespace Kirinji.ReactiveTree.Merging
                         // [1, 3] is not matched
 
                         var isMatched = pairsChanged.Any(ed =>
+                        {
+                            var dirEnumerator = dir.GetEnumerator();
+                            var changedDirEnumerator = ed.Key.GetEnumerator();
+                            while (true)
                             {
-                                var dirEnumerator = dir.GetEnumerator();
-                                var changedDirEnumerator = ed.Key.GetEnumerator();
-                                while (true)
+                                if (changedDirEnumerator.MoveNext())
                                 {
-                                    if (changedDirEnumerator.MoveNext())
+                                    if (!dirEnumerator.MoveNext())
                                     {
-                                        if (!dirEnumerator.MoveNext())
-                                        {
-                                            return false;
-                                        }
-                                        if (!Object.Equals(changedDirEnumerator.Current, dirEnumerator.Current))
-                                        {
-                                            return false;
-                                        }
+                                        return false;
                                     }
-                                    else
+                                    if (!Object.Equals(changedDirEnumerator.Current, dirEnumerator.Current))
                                     {
-                                        return true;
+                                        return false;
                                     }
                                 }
-                            });
+                                else
+                                {
+                                    return true;
+                                }
+                            }
+                        });
 
                         if (isMatched)
                         {
-                            rtn.Add(new ElementDirectory<K, V>(new KeyArray<KeyOrIndex<K>>(dir), CurrentTree.GetOrDefault(dir)));
+                            rtn.Add(new KeyArray<KeyOrIndex<K>>(dir), CurrentTree.GetOrDefault(dir));
                         }
                     }
                     return rtn;
                 })
                 .Where(list => list.Count != 0);
 
-            return Observable.Create<IEnumerable<ElementDirectory<K, V>>>(observer =>
-                {
-                    var subscription = inner.Subscribe(observer);
-                    return new CompositeDisposable(
-                        subscription,
-                        System.Reactive.Disposables.Disposable.Create(() => preventDisposingObjects.Remove(this)));
-                });
-        }
-
-        public IEnumerable<ElementDirectory<K, V>> GetValues(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
-        {
-            return directories
-                .Select(d => new { Key = d, Value = CurrentTree.GetOrDefault(d) })
-                .Select(a => new ElementDirectory<K, V>(a.Key, a.Value))
-                .ToArray();
+            return Observable.Create<IReadOnlyDictionary<KeyArray<KeyOrIndex<K>>, TreeElement<K, V>>>(observer =>
+            {
+                var subscription = inner.Subscribe(observer);
+                return new CompositeDisposable(
+                    subscription,
+                    System.Reactive.Disposables.Disposable.Create(() => preventDisposingObjects.Remove(this)));
+            });
         }
     }
 }

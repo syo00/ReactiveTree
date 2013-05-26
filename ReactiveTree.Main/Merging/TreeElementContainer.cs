@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Kirinji.ReactiveTree.Merging
 {
     // TreeElementNotifier の、TreeElement の変更通知をしないバージョン
-    public class TreeElementContainer<TKey, TValue> : IDirectoryValueChanged<TKey, TValue>
+    public class TreeElementContainer<TKey, TValue> : IReactiveTree<KeyOrIndex<TKey>, TreeElement<TKey, TValue>>
     {
         private TreeElement<TKey, TValue> currentTree;
 
@@ -28,17 +28,16 @@ namespace Kirinji.ReactiveTree.Merging
             Contract.Invariant(currentTree != null);
         }
 
-        public IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
-        {
-            return Observable.Return(GetValues(directories));
-        }
-
-        public IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
+        public IReadOnlyDictionary<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>> Values(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
         {
             return directories
                 .Select(d => new { Key = d, Value = currentTree.GetOrDefault(d) })
-                .Select(a => new ElementDirectory<TKey, TValue>(a.Key, a.Value))
-                .ToArray();
+                .ToDictionary(a => a.Key, a => a.Value);
+        }
+
+        public IObservable<IReadOnlyDictionary<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
+        {
+            return Observable.Return(Values(directories));
         }
     }
 }

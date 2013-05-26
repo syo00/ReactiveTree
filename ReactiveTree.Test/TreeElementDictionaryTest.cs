@@ -61,7 +61,7 @@ namespace Kirinji.ReactiveTree.Test
             var notifier12345_2 = dictionary.Merge(TreeElementConverter.ConvertJson(jsonText3).NodeChildren[rootId], null);
             var notifier12345_3 = dictionary.Merge(TreeElementConverter.ConvertJson(jsonText4).NodeChildren[rootId], null);
 
-            notifier12345TextHistory.Values.Select(x => x.Directory.Single().NodeKey).Is("text", "text");
+            notifier12345TextHistory.Values.Select(x => x.Key.Single().NodeKey).Is("text", "text");
             notifier12345TextHistory.Values.Select(x => x.Value.LeafValue.CastOrDefault<string>()).Is("Good morning!", "Good night...");
             notifier12345MsgHistory.Values.Select(x => x.Value.LeafValue.CastOrDefault<string>()).Is("No action taken", "Modified");
             notifier67890TextHistory.Values.Count.Is(0);

@@ -39,10 +39,11 @@ namespace Kirinji.ReactiveTree.Test
     }
 }
 ";
+
             var rootId = TreeElementConverter.RootId;
             var j = new TreeElementNotifier<string, IDataObject>(TreeElementConverter.ConvertJson("{ }").NodeChildren[rootId]);
-            j.GetValue(new KeyOrIndex<string>("name")).Value.IsNull();
-            j.GetValue(new KeyOrIndex<string>("user"), new KeyOrIndex<string>("id")).Value.IsNull();
+            j.Value(new KeyOrIndex<string>("name")).Value.IsNull();
+            j.Value(new KeyOrIndex<string>("user"), new KeyOrIndex<string>("id")).Value.IsNull();
 
             var nameHistory = j.ValueChanged(new KeyOrIndex<string>("name")).SubscribeHistory();
             var userIdHistory = j.ValueChanged(new KeyOrIndex<string>("user"), new KeyOrIndex<string>("id")).SubscribeHistory();
@@ -54,18 +55,18 @@ namespace Kirinji.ReactiveTree.Test
             userIdHistory.Values.ElementAt(0).Value.IsNull();
             userIdHistory.Values.ElementAt(1).Value.LeafValue.CastOrDefault<int>().Is(1);
             userIdHistory.Values.ElementAt(2).Value.LeafValue.CastOrDefault<int>().Is(2);
-            userIdHistory.Values.ElementAt(0).Directory.Is(userIdHistory.Values.ElementAt(1).Directory);
-            userIdHistory.Values.ElementAt(1).Directory.Is(userIdHistory.Values.ElementAt(2).Directory);
+            userIdHistory.Values.ElementAt(0).Key.Is(userIdHistory.Values.ElementAt(1).Key);
+            userIdHistory.Values.ElementAt(1).Key.Is(userIdHistory.Values.ElementAt(2).Key);
             userIdHistory.Values.Count().Is(3);
 
             nameHistory.Values.ElementAt(0).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
             nameHistory.Values.ElementAt(1).Value.LeafValue.CastOrDefault<string>().Is("Yamada");
             nameHistory.Values.ElementAt(2).Value.LeafValue.CastOrDefault<string>().Is("Mark");
-            nameHistory.Values.ElementAt(0).Directory.Is(nameHistory.Values.ElementAt(1).Directory);
-            nameHistory.Values.ElementAt(1).Directory.Is(nameHistory.Values.ElementAt(2).Directory);
+            nameHistory.Values.ElementAt(0).Key.Is(nameHistory.Values.ElementAt(1).Key);
+            nameHistory.Values.ElementAt(1).Key.Is(nameHistory.Values.ElementAt(2).Key);
             nameHistory.Values.Count().Is(3);
             
-            j.GetValue(new KeyOrIndex<string>("name")).Value.LeafValue.CastOrDefault<string>().Is("Mark");
+            j.Value(new KeyOrIndex<string>("name")).Value.LeafValue.CastOrDefault<string>().Is("Mark");
         }
 
         [TestMethod]

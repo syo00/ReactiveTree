@@ -8,7 +8,7 @@
     <ProjectGuid>{0664C272-9DEC-40B3-9827-DD6DCA43C9DD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Kirinji.ReactiveTree.Main</RootNamespace>
+    <RootNamespace>Kirinji.ReactiveTree</RootNamespace>
     <AssemblyName>ReactiveTree.Main</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
@@ -102,7 +102,6 @@
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="IDirectoryValueChanged.cs" />
     <Compile Include="Merging\TreeElementContainer.cs" />
     <Compile Include="Merging\TreeElementDictionary.cs" />
     <Compile Include="Merging\TreeElementNotifier.cs" />
@@ -137,6 +136,9 @@
       <Project>{ef7b3c5b-dffa-430f-b92b-830b0d3c775c}</Project>
       <Name>ReactiveTree</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Adaptors\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

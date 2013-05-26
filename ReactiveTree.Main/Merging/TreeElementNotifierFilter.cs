@@ -11,13 +11,13 @@ using Kirinji.ReactiveTree.TreeStructures;
 namespace Kirinji.ReactiveTree.Merging
 {
     /// <summary>Make IDirectoryValueChanged not to subscribe changes in specified directory,</summary>
-    public class TreeElementNotifierFilter<TKey, TValue> : Disposable, IDirectoryValueChanged<TKey, TValue>
+    public class TreeElementNotifierFilter<TKey, TValue> : Disposable, IReactiveTree<KeyOrIndex<TKey>, TreeElement<TKey, TValue>>
     {
-        readonly IDirectoryValueChanged<TKey, TValue> inner;
+        readonly IReactiveTree<KeyOrIndex<TKey>, TreeElement<TKey, TValue>> inner;
         readonly Func<KeyArray<KeyOrIndex<TKey>>, bool> filter;
 
         /// <param name="filter">Parameter gives directory. Return false to ignore subscription.</param>
-        public TreeElementNotifierFilter(IDirectoryValueChanged<TKey, TValue> inner, Func<KeyArray<KeyOrIndex<TKey>>, bool> filter)
+        public TreeElementNotifierFilter(IReactiveTree<KeyOrIndex<TKey>, TreeElement<TKey, TValue>> inner, Func<KeyArray<KeyOrIndex<TKey>>, bool> filter)
         {
             Contract.Requires<ArgumentNullException>(inner != null);
             Contract.Requires<ArgumentNullException>(filter != null);
@@ -34,14 +34,14 @@ namespace Kirinji.ReactiveTree.Merging
             Contract.Invariant(this.filter != null);
         }
 
-        public IObservable<IEnumerable<ElementDirectory<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
+        public IReadOnlyDictionary<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>> Values(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
         {
-            return this.inner.ValuesChanged(directories.Where(dir => filter(dir)));
+            return this.inner.Values(directories);
         }
 
-        public IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
+        public IObservable<IReadOnlyDictionary<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
         {
-            return this.inner.GetValues(directories);
+            return inner.ValuesChanged(directories.Where(dir => filter(dir)));
         }
     }
 }
