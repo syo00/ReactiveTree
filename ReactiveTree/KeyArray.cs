@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kirinji.ReactiveTree.TreeStructures
+namespace Kirinji.ReactiveTree
 {
     public class KeyArray<T> : IEquatable<KeyArray<T>>, IEnumerable<T>
     {

@@ -105,24 +105,11 @@
     <DocumentationFile>bin\Release\ReactiveTree.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="IDirectoryValueChanged.cs" />
     <Compile Include="LightWands\LightWands.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleJson.cs" />
-    <Compile Include="Merging\TreeElementContainer.cs" />
-    <Compile Include="Merging\TreeElementDictionary.cs" />
-    <Compile Include="Merging\TreeElementNotifier.cs" />
-    <Compile Include="Merging\TreeElementNotifierFilter.cs" />
-    <Compile Include="TreeStructures\ElementDirectory.cs" />
-    <Compile Include="TreeStructures\KeyArray.cs" />
-    <Compile Include="TreeStructures\KeyOrIndex.cs" />
-    <Compile Include="TreeStructures\TreeElementExtensions.cs" />
-    <Compile Include="TreeStructures\ElementType.cs" />
-    <Compile Include="TreeStructures\TreeElement.cs" />
-    <Compile Include="_DataDefinitionLanguage\DataObject.cs" />
-    <Compile Include="_DataDefinitionLanguage\IDataObject.cs" />
-    <Compile Include="_DataDefinitionLanguage\SimpleJsonDataObject.cs" />
-    <Compile Include="_DataDefinitionLanguage\TreeElementConverter.cs" />
+    <Compile Include="KeyArray.cs" />
+    <Compile Include="KeyOrIndex.cs" />
+    <Compile Include="IDataObject.cs" />
     <Compile Include="_FriendAssemblies.cs" />
   </ItemGroup>
   <ItemGroup>

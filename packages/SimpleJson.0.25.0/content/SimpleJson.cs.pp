@@ -37,7 +37,7 @@
 
 // NOTE: uncomment the following line if you are compiling under Window Metro style application/library.
 // usually already defined in properties
-#define NETFX_CORE
+//#define NETFX_CORE;
 
 // original json parsing code from http://techblog.procurios.nl/k/618/news/view/14605/14863/How-do-I-write-my-own-parser-for-JSON.html
 
@@ -61,12 +61,12 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
-using Kirinji.ReactiveTree.Reflection;
+using $rootnamespace$.Reflection;
 
 // ReSharper disable LoopCanBeConvertedToQuery
 // ReSharper disable RedundantExplicitArrayCreation
 // ReSharper disable SuggestUseVarKeywordEvident
-namespace Kirinji.ReactiveTree
+namespace $rootnamespace$
 {
     /// <summary>
     /// Represents the json array.
@@ -479,7 +479,7 @@ namespace Kirinji.ReactiveTree
     }
 }
 
-namespace Kirinji.ReactiveTree
+namespace $rootnamespace$
 {
     /// <summary>
     /// This class encodes and decodes JSON strings.

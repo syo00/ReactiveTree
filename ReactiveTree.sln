@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveTree", "ReactiveTre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveTree.Test", "ReactiveTree.Test\ReactiveTree.Test.csproj", "{B36AA438-697C-4A0D-BA60-448F563D550A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveTree.Main", "ReactiveTree.Main\ReactiveTree.Main.csproj", "{0664C272-9DEC-40B3-9827-DD6DCA43C9DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{B36AA438-697C-4A0D-BA60-448F563D550A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B36AA438-697C-4A0D-BA60-448F563D550A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B36AA438-697C-4A0D-BA60-448F563D550A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0664C272-9DEC-40B3-9827-DD6DCA43C9DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0664C272-9DEC-40B3-9827-DD6DCA43C9DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0664C272-9DEC-40B3-9827-DD6DCA43C9DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0664C272-9DEC-40B3-9827-DD6DCA43C9DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

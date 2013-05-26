@@ -39,7 +39,7 @@ namespace Kirinji.ReactiveTree.Merging
             return this.inner.ValuesChanged(directories.Where(dir => filter(dir)));
         }
 
-        public IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<TreeStructures.KeyOrIndex<TKey>>> directories)
+        public IEnumerable<ElementDirectory<TKey, TValue>> GetValues(IEnumerable<KeyArray<KeyOrIndex<TKey>>> directories)
         {
             return this.inner.GetValues(directories);
         }
