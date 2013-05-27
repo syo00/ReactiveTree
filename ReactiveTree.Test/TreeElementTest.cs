@@ -196,5 +196,31 @@ namespace Kirinji.ReactiveTree.Test
             te_a1.IsNot(te_b);
             te_a1.IsNot(te_node);
         }
+
+        [TestMethod]
+        public void ReadOnlyTest()
+        {
+            IReadOnlyTreeElement<string, string> leaf = new TreeElement<string, string>("a");
+            AssertEx.Catch<InvalidOperationException>(() => leaf.Array.ToString());
+            AssertEx.Catch<InvalidOperationException>(() => leaf.ArrayChanged.ToString());
+            AssertEx.Catch<InvalidOperationException>(() => leaf.NodeChildren.ToString());
+            AssertEx.Catch<InvalidOperationException>(() => leaf.NodeChildrenChanged.ToString());
+            leaf.LeafValue.Is("a");
+
+            IReadOnlyTreeElement<string, string> array = new TreeElement<string, string>(new TreeElement<string, string>("a"), new TreeElement<string, string>("b"));
+            array.Array.Is(new TreeElement<string, string>("a"), new TreeElement<string, string>("b"));
+            array.ArrayChanged.ToString();
+            AssertEx.Catch<InvalidOperationException>(() => array.NodeChildren.ToString());
+            AssertEx.Catch<InvalidOperationException>(() => array.NodeChildrenChanged.ToString());
+            AssertEx.Catch<InvalidOperationException>(() => array.LeafValue.ToString());
+
+            IReadOnlyTreeElement<string, string> node = new TreeElement<string, string>(new KeyValuePair<string, TreeElement<string, string>>("a", new TreeElement<string, string>("A")));
+            AssertEx.Catch<InvalidOperationException>(() => node.Array.ToString());
+            AssertEx.Catch<InvalidOperationException>(() => node.ArrayChanged.ToString());
+            node.NodeChildren.Single(pair => pair.Key == "a").Value.Is(new TreeElement<string, string>("A"));
+            node.NodeChildrenChanged.ToString();
+            AssertEx.Catch<InvalidOperationException>(() => node.LeafValue.ToString());
+
+        }
     }
 }

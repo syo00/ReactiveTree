@@ -36,6 +36,7 @@ namespace Kirinji.ReactiveTree
             Contract.Requires<ArgumentNullException>(directories != null);
             Contract.Requires(Contract.ForAll(directories, dir => dir != null && Contract.ForAll(dir, key => key != null)));
             Contract.Ensures(Contract.Result<IObservable<IReadOnlyDictionary<KeyArray<TKey>, TValue>>>() != null);
+            //　Not always all KeyValuePair keys are returned and values may be null.
 
             throw new NotImplementedException();
         }

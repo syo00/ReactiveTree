@@ -109,9 +109,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleJson.cs" />
     <Compile Include="TreeStructures\ElementDirectory.cs" />
-    <Compile Include="TreeStructures\ElementType.cs" />
     <Compile Include="TreeStructures\TreeElement.cs" />
     <Compile Include="TreeStructures\TreeElementExtensions.cs" />
+    <Compile Include="TreeStructures\TreeElementMessages.cs" />
     <Compile Include="_DataDefinitionLanguage\DataObject.cs" />
     <Compile Include="_DataDefinitionLanguage\SimpleJsonDataObject.cs" />
     <Compile Include="_DataDefinitionLanguage\TreeElementConverter.cs" />

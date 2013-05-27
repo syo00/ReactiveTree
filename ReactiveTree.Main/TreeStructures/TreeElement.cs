@@ -14,12 +14,8 @@ using System.Reactive.Subjects;
 namespace Kirinji.ReactiveTree.TreeStructures
 {
     // K means Key and V means Value: To shorten codes, uses one character type.
-    public class TreeElement<K, V> : IEquatable<TreeElement<K, V>>
+    public class TreeElement<K, V> : IEquatable<TreeElement<K, V>>, IReadOnlyTreeElement<K,V>
     {
-        static readonly string NotArrayErrorMessage = "This is not an array.";
-        static readonly string NotLeafErrorMessage = "This is not a leaf.";
-        static readonly string NotNodeErrorMessage = "This is not a node.";
-
         private readonly ObservableDictionary<K, TreeElement<K, V>> nodeChildren;
         private readonly ObservableCollection<TreeElement<K, V>> arrayValues;
         private readonly V leafValue;
@@ -103,11 +99,21 @@ namespace Kirinji.ReactiveTree.TreeStructures
         {
             get
             {
-                Contract.Requires<InvalidOperationException>(Type == ElementType.Array, NotArrayErrorMessage);
+                Contract.Requires<InvalidOperationException>(Type == ElementType.Array, TreeElementMessages.NotArrayErrorMessage);
                 Contract.Ensures(Contract.Result<IList<TreeElement<K, V>>>() != null);
                 Contract.Ensures(Contract.ForAll(Contract.Result<IList<TreeElement<K, V>>>(), e => e != null));
 
                 return arrayValues;
+            }
+        }
+
+        IEnumerable<IReadOnlyTreeElement<K, V>> IReadOnlyTreeElement<K, V>.Array
+        {
+            get
+            {
+                // contract is defined at IReadOnlyTreeElement
+
+                return Array.Hide();
             }
         }
 
@@ -116,8 +122,7 @@ namespace Kirinji.ReactiveTree.TreeStructures
         {
             get
             {
-                Contract.Requires<InvalidOperationException>(Type == ElementType.Array, NotArrayErrorMessage);
-                Contract.Ensures(Contract.Result<IObservable<NotifyCollectionChangedEventArgs>>() != null);
+                // contract is defined at IReadOnlyTreeElement
 
                 if (arrayChanged == null)
                 {
@@ -136,7 +141,7 @@ namespace Kirinji.ReactiveTree.TreeStructures
         {
             get
             {
-                Contract.Requires<InvalidOperationException>(Type == ElementType.Leaf, NotLeafErrorMessage);
+                // contract is defined at IReadOnlyTreeElement
 
                 return leafValue;
             }
@@ -146,11 +151,21 @@ namespace Kirinji.ReactiveTree.TreeStructures
         {
             get
             {
-                Contract.Requires<InvalidOperationException>(Type == ElementType.Node, NotNodeErrorMessage);
+                Contract.Requires<InvalidOperationException>(Type == ElementType.Node, TreeElementMessages.NotNodeErrorMessage);
                 Contract.Ensures(Contract.Result<IDictionary<K, TreeElement<K, V>>>() != null);
                 Contract.Ensures(Contract.ForAll(Contract.Result<IDictionary<K, TreeElement<K, V>>>(), e => e.Key != null && e.Value != null));
 
                 return nodeChildren;
+            }
+        }
+
+        IEnumerable<KeyValuePair<K, IReadOnlyTreeElement<K, V>>> IReadOnlyTreeElement<K, V>.NodeChildren
+        {
+            get
+            {
+                // contract is defined at IReadOnlyTreeElement
+
+                return NodeChildren.Select(pair => new KeyValuePair<K, IReadOnlyTreeElement<K, V>>(pair.Key, pair.Value));
             }
         }
 
@@ -159,8 +174,7 @@ namespace Kirinji.ReactiveTree.TreeStructures
         {
             get
             {
-                Contract.Requires<InvalidOperationException>(Type == ElementType.Node, NotNodeErrorMessage);
-                Contract.Ensures(Contract.Result<IObservable<NotifyCollectionChangedEventArgs>>() != null);
+                // contract is defined at IReadOnlyTreeElement
 
                 if (nodeChildrenChanged == null)
                 {
@@ -183,7 +197,7 @@ namespace Kirinji.ReactiveTree.TreeStructures
         {
             get
             {
-                Contract.Ensures(Contract.Result<IObservable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>>() != null);
+                // contract is defined at IReadOnlyTreeElement
 
                 if (grandChildrenChanged == null)
                 {
