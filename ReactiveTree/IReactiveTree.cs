@@ -12,30 +12,30 @@ namespace Kirinji.ReactiveTree
     [ContractClass(typeof(IReactiveTreeContract<,>))]
     public interface IReactiveTree<TKey, TValue>
     {
-        IReadOnlyDictionary<KeyArray<TKey>, TValue> Values(IEnumerable<KeyArray<TKey>> directories);
-        IObservable<IReadOnlyDictionary<KeyArray<TKey>, TValue>> ValuesChanged(IEnumerable<KeyArray<TKey>> directories);
+        IReadOnlyDictionary<TKey, TValue> Values(IEnumerable<TKey> directories);
+        IObservable<IReadOnlyDictionary<TKey, TValue>> ValuesChanged(IEnumerable<TKey> directories);
     }
 
     #region IReactiveTree contract binding
     [ContractClassFor(typeof(IReactiveTree<,>))]
     abstract class IReactiveTreeContract<TKey, TValue> : IReactiveTree<TKey, TValue>
     {
-        public IReadOnlyDictionary<KeyArray<TKey>, TValue> Values(IEnumerable<KeyArray<TKey>> directories)
+        public IReadOnlyDictionary<TKey, TValue> Values(IEnumerable<TKey> directories)
         {
             Contract.Requires<ArgumentNullException>(directories != null);
-            Contract.Requires(Contract.ForAll(directories, dir => dir != null && Contract.ForAll(dir, key => key != null)));
-            Contract.Ensures(Contract.Result<IReadOnlyDictionary<KeyArray<TKey>, TValue>>() != null);
-            // Contract.Result<IReadOnlyDictionary<KeyArray<TKey>, TValue>>().Count == directories.Distinct().Count()
+            Contract.Requires(Contract.ForAll(directories, dir => dir != null));
+            Contract.Ensures(Contract.Result<IReadOnlyDictionary<TKey, TValue>>() != null);
+            // Contract.Result<IReadOnlyDictionary<TKey, TValue>>().Count == directories.Distinct().Count()
             // All KeyValuePair keys are returned and values may be null.
 
             throw new NotImplementedException();
         }
 
-        public IObservable<IReadOnlyDictionary<KeyArray<TKey>, TValue>> ValuesChanged(IEnumerable<KeyArray<TKey>> directories)
+        public IObservable<IReadOnlyDictionary<TKey, TValue>> ValuesChanged(IEnumerable<TKey> directories)
         {
             Contract.Requires<ArgumentNullException>(directories != null);
-            Contract.Requires(Contract.ForAll(directories, dir => dir != null && Contract.ForAll(dir, key => key != null)));
-            Contract.Ensures(Contract.Result<IObservable<IReadOnlyDictionary<KeyArray<TKey>, TValue>>>() != null);
+            Contract.Requires(Contract.ForAll(directories, dir => dir != null));
+            Contract.Ensures(Contract.Result<IObservable<IReadOnlyDictionary<TKey, TValue>>>() != null);
             //　Not always all KeyValuePair keys are returned and values may be null.
 
             throw new NotImplementedException();
@@ -45,25 +45,25 @@ namespace Kirinji.ReactiveTree
 
     public static class ReactiveTree
     {
-        public static IObservable<IReadOnlyDictionary<KeyArray<TKey>, TValue>> ValuesChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, params KeyArray<TKey>[] directories)
+        public static IObservable<IReadOnlyDictionary<TKey, TValue>> ValuesChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, params TKey[] directories)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directories != null);
-            Contract.Ensures(Contract.Result<IObservable<IReadOnlyDictionary<KeyArray<TKey>, TValue>>>() != null);
+            Contract.Ensures(Contract.Result<IObservable<IReadOnlyDictionary<TKey, TValue>>>() != null);
 
             return source.ValuesChanged(directories.AsEnumerable());
         }
 
-        public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, KeyArray<TKey> directory)
+        public static IObservable<KeyValuePair<TKey, TValue>> ValueChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, TKey directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
-            Contract.Ensures(Contract.Result<IObservable<KeyValuePair<KeyArray<TKey>, TValue>>>() != null);
+            Contract.Ensures(Contract.Result<IObservable<KeyValuePair<TKey, TValue>>>() != null);
 
             return source.ValuesChanged(new[] { directory }).SelectMany(dic => dic);
         }
 
-        public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, IEnumerable<TKey> directory)
+        public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueChanged<TKey, TValue>(this IReactiveTree<KeyArray<TKey>, TValue> source, IEnumerable<TKey> directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -72,7 +72,7 @@ namespace Kirinji.ReactiveTree
             return source.ValueChanged(new KeyArray<TKey>(directory));
         }
 
-        public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, params TKey[] directory)
+        public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueChanged<TKey, TValue>(this IReactiveTree<KeyArray<TKey>, TValue> source, params TKey[] directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -82,16 +82,16 @@ namespace Kirinji.ReactiveTree
         }
 
 
-        public static IReadOnlyDictionary<KeyArray<TKey>, TValue> Values<TKey, TValue>(this IReactiveTree<TKey, TValue> source, params KeyArray<TKey>[] directories)
+        public static IReadOnlyDictionary<TKey, TValue> Values<TKey, TValue>(this IReactiveTree<TKey, TValue> source, params TKey[] directories)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directories != null);
-            Contract.Ensures(Contract.Result<IReadOnlyDictionary<KeyArray<TKey>, TValue>>() != null);
+            Contract.Ensures(Contract.Result<IReadOnlyDictionary<TKey, TValue>>() != null);
 
             return source.Values(directories.AsEnumerable());
         }
 
-        public static KeyValuePair<KeyArray<TKey>, TValue> Value<TKey, TValue>(this IReactiveTree<TKey, TValue> source, KeyArray<TKey> directory)
+        public static KeyValuePair<TKey, TValue> Value<TKey, TValue>(this IReactiveTree<TKey, TValue> source, TKey directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -99,7 +99,7 @@ namespace Kirinji.ReactiveTree
             return source.Values(new[] { directory }).Single();
         }
 
-        public static KeyValuePair<KeyArray<TKey>, TValue> Value<TKey, TValue>(this IReactiveTree<TKey, TValue> source, IEnumerable<TKey> directory)
+        public static KeyValuePair<KeyArray<TKey>, TValue> Value<TKey, TValue>(this IReactiveTree<KeyArray<TKey>, TValue> source, IEnumerable<TKey> directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -107,7 +107,7 @@ namespace Kirinji.ReactiveTree
             return source.Value(new KeyArray<TKey>(directory));
         }
 
-        public static KeyValuePair<KeyArray<TKey>, TValue> Value<TKey, TValue>(this IReactiveTree<TKey, TValue> source, params TKey[] directory)
+        public static KeyValuePair<KeyArray<TKey>, TValue> Value<TKey, TValue>(this IReactiveTree<KeyArray<TKey>, TValue> source, params TKey[] directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -116,16 +116,27 @@ namespace Kirinji.ReactiveTree
         }
 
 
-        public static IObservable<IReadOnlyDictionary<KeyArray<TKey>, TValue>> ValuesAndChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, params KeyArray<TKey>[] directories)
+        public static IObservable<IReadOnlyDictionary<TKey, TValue>> ValuesAndChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, params TKey[] directories)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directories != null);
-            Contract.Ensures(Contract.Result<IObservable<IEnumerable<KeyValuePair<KeyArray<TKey>, TValue>>>>() != null);
+            Contract.Ensures(Contract.Result<IObservable<IEnumerable<KeyValuePair<TKey, TValue>>>>() != null);
 
             return Observable.Merge(Observable.Return(source.Values(directories)), source.ValuesChanged(directories));
         }
 
-        public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueAndChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, KeyArray<TKey> directory)
+        public static IObservable<KeyValuePair<TKey, TValue>> ValueAndChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, TKey directory)
+        {
+            Contract.Requires<ArgumentNullException>(source != null);
+            Contract.Requires<ArgumentNullException>(directory != null);
+            Contract.Ensures(Contract.Result<IObservable<KeyValuePair<TKey, TValue>>>() != null);
+
+            return Observable.Merge(
+                Observable.Return(source.Value(directory)),
+                source.ValueChanged(directory));
+        }
+
+        public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueAndChanged<TKey, TValue>(this IReactiveTree<KeyArray<TKey>, TValue> source, IEnumerable<TKey> directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);
@@ -136,18 +147,7 @@ namespace Kirinji.ReactiveTree
                 source.ValueChanged(directory));
         }
 
-        public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueAndChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, IEnumerable<TKey> directory)
-        {
-            Contract.Requires<ArgumentNullException>(source != null);
-            Contract.Requires<ArgumentNullException>(directory != null);
-            Contract.Ensures(Contract.Result<IObservable<KeyValuePair<KeyArray<TKey>, TValue>>>() != null);
-
-            return Observable.Merge(
-                Observable.Return(source.Value(directory)),
-                source.ValueChanged(directory));
-        }
-
-        public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueAndChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, params TKey[] directory)
+        public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueAndChanged<TKey, TValue>(this IReactiveTree<KeyArray<TKey>, TValue> source, params TKey[] directory)
         {
             Contract.Requires<ArgumentNullException>(source != null);
             Contract.Requires<ArgumentNullException>(directory != null);

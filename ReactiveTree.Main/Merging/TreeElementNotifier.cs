@@ -13,7 +13,7 @@ using System.Reactive.Disposables;
 
 namespace Kirinji.ReactiveTree.Merging
 {
-    public class TreeElementNotifier<K, V> : IReactiveTree<KeyOrIndex<K>, TreeElement<K, V>>
+    public class TreeElementNotifier<K, V> : IReactiveTree<KeyArray<KeyOrIndex<K>>, TreeElement<K, V>>
     {
         private bool isModifyingStraight;
         private ISubject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>> modifyingStraightSubject = new Subject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>>();
