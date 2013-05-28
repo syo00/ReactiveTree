@@ -118,6 +118,15 @@
     <Compile Include="_FriendAssemblies.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ReactiveTree\ReactiveTree.csproj">
+      <Project>{ef7b3c5b-dffa-430f-b92b-830b0d3c775c}</Project>
+      <Name>ReactiveTree</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Adaptors\" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System.Reactive.Core">
       <HintPath>..\packages\Rx-Core.2.1.30214.0\lib\Portable-Net45+WinRT45+WP8\System.Reactive.Core.dll</HintPath>
     </Reference>
@@ -130,15 +139,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ReactiveTree\ReactiveTree.csproj">
-      <Project>{ef7b3c5b-dffa-430f-b92b-830b0d3c775c}</Project>
-      <Name>ReactiveTree</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Adaptors\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
