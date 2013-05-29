@@ -54,7 +54,7 @@ namespace Kirinji.ReactiveTree
             {
                 case SimpleJsonDataObjectType.Boolean:
                     {
-                        if (tType == typeof(bool))
+                        if (tType == typeof(bool) || tType == typeof(bool?))
                         {
                             value = (T)this.InnerObject;
                             return true;
@@ -87,7 +87,7 @@ namespace Kirinji.ReactiveTree
                     {
                         var d = (double)this.InnerObject;
 
-                        if (tType == typeof(double))
+                        if (tType == typeof(double) || tType == typeof(double?))
                         {
                             value = (T)(object)d;
                             return true;
@@ -97,7 +97,7 @@ namespace Kirinji.ReactiveTree
                             value = (T)(object)this.InnerObject.ToString();
                             return true;
                         }
-                        else if (tType == typeof(sbyte))
+                        else if (tType == typeof(sbyte) || tType == typeof(sbyte?))
                         {
                             if (sbyte.MinValue <= d && d <= sbyte.MaxValue)
                             {
@@ -105,7 +105,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(byte))
+                        else if (tType == typeof(byte) || tType == typeof(byte?))
                         {
                             if (byte.MinValue <= d && d <= byte.MaxValue)
                             {
@@ -113,7 +113,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(short))
+                        else if (tType == typeof(short) || tType == typeof(short?))
                         {
                             if (short.MinValue <= d && d <= short.MaxValue)
                             {
@@ -121,7 +121,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(ushort))
+                        else if (tType == typeof(ushort) || tType == typeof(ushort?))
                         {
                             if (ushort.MinValue <= d && d <= ushort.MaxValue)
                             {
@@ -129,7 +129,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(int))
+                        else if (tType == typeof(int) || tType == typeof(int?))
                         {
                             if (int.MinValue <= d && d <= int.MaxValue)
                             {
@@ -137,7 +137,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(uint))
+                        else if (tType == typeof(uint) || tType == typeof(uint?))
                         {
                             if (uint.MinValue <= d && d <= uint.MaxValue)
                             {
@@ -145,7 +145,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(long))
+                        else if (tType == typeof(long) || tType == typeof(long?))
                         {
                             if (long.MinValue <= d && d <= long.MaxValue)
                             {
@@ -153,7 +153,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(ulong))
+                        else if (tType == typeof(ulong) || tType == typeof(ulong?))
                         {
                             if (ulong.MinValue <= d && d <= ulong.MaxValue)
                             {
@@ -161,7 +161,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(float))
+                        else if (tType == typeof(float) || tType == typeof(float?))
                         {
                             if (float.MinValue <= d && d <= float.MaxValue)
                             {
@@ -176,7 +176,7 @@ namespace Kirinji.ReactiveTree
                     {
                         var l = (long)this.InnerObject;
 
-                        if (tType == typeof(long))
+                        if (tType == typeof(long) || tType == typeof(long?))
                         {
                             value = (T)(object)l;
                             return true;
@@ -186,7 +186,7 @@ namespace Kirinji.ReactiveTree
                             value = (T)(object)this.InnerObject.ToString();
                             return true;
                         }
-                        else if (tType == typeof(sbyte))
+                        else if (tType == typeof(sbyte) || tType == typeof(sbyte?))
                         {
                             if (sbyte.MinValue <= l && l <= sbyte.MaxValue)
                             {
@@ -194,7 +194,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(byte))
+                        else if (tType == typeof(byte) || tType == typeof(byte?))
                         {
                             if (byte.MinValue <= l && l <= byte.MaxValue)
                             {
@@ -202,7 +202,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(short))
+                        else if (tType == typeof(short) || tType == typeof(short?))
                         {
                             if (short.MinValue <= l && l <= short.MaxValue)
                             {
@@ -210,7 +210,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(ushort))
+                        else if (tType == typeof(ushort) || tType == typeof(ushort?))
                         {
                             if (ushort.MinValue <= l && l <= ushort.MaxValue)
                             {
@@ -218,7 +218,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(int))
+                        else if (tType == typeof(int) || tType == typeof(int?))
                         {
                             if (int.MinValue <= l && l <= int.MaxValue)
                             {
@@ -226,7 +226,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(uint))
+                        else if (tType == typeof(uint) || tType == typeof(uint?))
                         {
                             if (uint.MinValue <= l && l <= uint.MaxValue)
                             {
@@ -234,7 +234,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(ulong))
+                        else if (tType == typeof(ulong) || tType == typeof(ulong?))
                         {
                             if (0 <= l)
                             {
@@ -242,7 +242,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(float))
+                        else if (tType == typeof(float) || tType == typeof(float?))
                         {
                             if (float.MinValue <= l && l <= float.MaxValue)
                             {
@@ -250,7 +250,7 @@ namespace Kirinji.ReactiveTree
                                 return true;
                             }
                         }
-                        else if (tType == typeof(double))
+                        else if (tType == typeof(double) || tType == typeof(double?))
                         {
                             if (double.MinValue <= l && l <= double.MaxValue)
                             {
