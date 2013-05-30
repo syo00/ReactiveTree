@@ -27,7 +27,7 @@ namespace Kirinji.ReactiveTree.TreeStructures
                     {
                         var oldElement = source.Array[i.Key];
                         var newElement = i.Value;
-                        if (comparerToMerge != null 
+                        if (comparerToMerge != null
                             && comparerToMerge(oldElement, newElement)
                             && oldElement.Type == newElement.Type
                             && (oldElement.Type == ElementType.Array || oldElement.Type == ElementType.Node))
@@ -85,29 +85,7 @@ namespace Kirinji.ReactiveTree.TreeStructures
             Contract.Requires<ArgumentNullException>(directory != null);
             Contract.Requires<ArgumentNullException>(Contract.ForAll(directory, key => key != null));
 
-            TreeElement<TKey, TValue> s = source;
-            foreach (var key in directory)
-            {
-                if (s.Type == ElementType.Array)
-                {
-                    if (!key.IsArray) return null;
-                    var element = s.Array.ElementAtOrDefault(key.ArrayIndex);
-                    if (element == null) return null;
-                    s = element;
-                }
-                else if (s.Type == ElementType.Node)
-                {
-                    if (!key.IsNode) return null;
-                    var element = s.NodeChildren.ValueOrDefault(key.NodeKey);
-                    if (element == null) return null;
-                    s = element;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            return s;
+            return (TreeElement<TKey, TValue>)ReadOnlyTreeElement.GetOrDefault(source, directory);
         }
 
         public static TreeElement<TKey, TValue> GetOrDefault<TKey, TValue>(this TreeElement<TKey, TValue> source, params KeyOrIndex<TKey>[] directory)
@@ -115,7 +93,7 @@ namespace Kirinji.ReactiveTree.TreeStructures
             Contract.Requires<ArgumentNullException>(directory != null);
             Contract.Requires<ArgumentNullException>(Contract.ForAll(directory, key => key != null));
 
-            return source.GetOrDefault(directory.AsEnumerable());
+            return (TreeElement<TKey, TValue>)ReadOnlyTreeElement.GetOrDefault(source, directory);
         }
     }
 }

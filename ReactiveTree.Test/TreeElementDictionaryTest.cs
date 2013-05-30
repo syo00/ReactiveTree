@@ -17,7 +17,7 @@ namespace Kirinji.ReactiveTree.Test
         [TestMethod]
         public void MergeTest()
         {
-            var dictionary = new TreeElementDictionary<TreeElement<string, IDataObject>, string, IDataObject>(tree => tree.GetOrDefault(KeyOrIndex.Key("id")));
+            var dictionary = new TreeElementDictionary<IReadOnlyTreeElement<string, IDataObject>, string, IDataObject>(tree => tree.GetOrDefault(KeyOrIndex.Key("id")));
 
             string jsonText1 = @"{
     ""id"": 12345,

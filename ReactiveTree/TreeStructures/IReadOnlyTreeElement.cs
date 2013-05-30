@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.Contracts;
+using System.Linq;
+using Kirinji.LightWands;
 
 namespace Kirinji.ReactiveTree.TreeStructures
 {
@@ -95,4 +97,44 @@ namespace Kirinji.ReactiveTree.TreeStructures
     }
     #endregion
 
+    public static class ReadOnlyTreeElement
+    {
+        public static IReadOnlyTreeElement<TKey, TValue> GetOrDefault<TKey, TValue>(this IReadOnlyTreeElement<TKey, TValue> source, IEnumerable<KeyOrIndex<TKey>> directory)
+        {
+            Contract.Requires<ArgumentNullException>(directory != null);
+            Contract.Requires<ArgumentNullException>(Contract.ForAll(directory, key => key != null));
+
+            IReadOnlyTreeElement<TKey, TValue> s = source;
+            foreach (var key in directory)
+            {
+                if (s.Type == ElementType.Array)
+                {
+                    if (!key.IsArray) return null;
+                    var element = s.Array.ElementAtOrDefault(key.ArrayIndex);
+                    if (element == null) return null;
+                    s = element;
+                }
+                else if (s.Type == ElementType.Node)
+                {
+                    if (!key.IsNode) return null;
+                    var element = s.NodeChildren.FirstOrNull(pair => Object.Equals(pair.Key, key.NodeKey));
+                    if (element == null) return null;
+                    s = element.Value.Value;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            return s;
+        }
+
+        public static IReadOnlyTreeElement<TKey, TValue> GetOrDefault<TKey, TValue>(this IReadOnlyTreeElement<TKey, TValue> source, params KeyOrIndex<TKey>[] directory)
+        {
+            Contract.Requires<ArgumentNullException>(directory != null);
+            Contract.Requires<ArgumentNullException>(Contract.ForAll(directory, key => key != null));
+
+            return source.GetOrDefault(directory.AsEnumerable());
+        }
+    }
 }

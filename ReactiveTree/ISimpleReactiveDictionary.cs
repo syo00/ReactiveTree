@@ -158,59 +158,5 @@ namespace Kirinji.ReactiveTree
                 Observable.Return(source.Value(directory)),
                 source.ValueChanged(directory));
         }
-
-
-        //public static IObservable<IReadOnlyDictionary<TKey, TValue>> ValuesChanged<TKey, TValue>(this IReactiveTree<TKey, IDataObject> source, params TKey[] directories)
-        //{
-        //    Contract.Requires<ArgumentNullException>(source != null);
-        //    Contract.Requires<ArgumentNullException>(directories != null);
-        //    Contract.Ensures(Contract.Result<IObservable<IReadOnlyDictionary<TKey, TValue>>>() != null);
-
-        //    return source
-        //        .ValuesChanged(directories.AsEnumerable())
-        //        .Select(dic =>
-        //        {
-
-        //        });
-        //}
-
-        //public static IObservable<KeyValuePair<TKey, TValue>> ValueChanged<TKey, TValue>(this IReactiveTree<TKey, TValue> source, TKey directory)
-        //{
-        //    Contract.Requires<ArgumentNullException>(source != null);
-        //    Contract.Requires<ArgumentNullException>(directory != null);
-        //    Contract.Ensures(Contract.Result<IObservable<KeyValuePair<TKey, TValue>>>() != null);
-
-        //    return source.ValuesChanged(new[] { directory }).SelectMany(dic => dic);
-        //}
-
-        //public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueChanged<TKey, TValue>(this IReactiveTree<KeyArray<TKey>, TValue> source, IEnumerable<TKey> directory)
-        //{
-        //    Contract.Requires<ArgumentNullException>(source != null);
-        //    Contract.Requires<ArgumentNullException>(directory != null);
-        //    Contract.Ensures(Contract.Result<IObservable<KeyValuePair<KeyArray<TKey>, TValue>>>() != null);
-
-        //    return source.ValueChanged(new KeyArray<TKey>(directory));
-        //}
-
-        //public static IObservable<KeyValuePair<KeyArray<TKey>, TValue>> ValueChanged<TKey, TValue>(this IReactiveTree<KeyArray<TKey>, TValue> source, params TKey[] directory)
-        //{
-        //    Contract.Requires<ArgumentNullException>(source != null);
-        //    Contract.Requires<ArgumentNullException>(directory != null);
-        //    Contract.Ensures(Contract.Result<IObservable<KeyValuePair<KeyArray<TKey>, TValue>>>() != null);
-
-        //    return source.ValueChanged(directory.AsEnumerable());
-        //}
-
-        //private static KeyValuePair<TKey, TValue> Convert<TKey, TValue>(KeyValuePair<TKey, IReadOnlyTreeElement<TKey, IDataObject>> pair)
-        //{
-        //    var tree = pair.Value;
-        //    if (tree == null || tree.Type != ElementType.Leaf)
-        //    {
-        //        return new KeyValuePair<TKey, TValue>(pair.Key, default(TValue));
-        //    }
-        //    var leafValue = tree.LeafValue;
-        //    if (leafValue == null) return new KeyValuePair<TKey, TValue>(pair.Key, default(TValue));
-        //    return new KeyValuePair<TKey, TValue>(pair.Key, leafValue.CastOrDefault<TValue>());
-        //}
     }
 }
