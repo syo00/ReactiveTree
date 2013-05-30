@@ -102,6 +102,7 @@
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Adaptors\ReactiveDictionary.cs" />
     <Compile Include="Merging\TreeElementContainer.cs" />
     <Compile Include="Merging\TreeElementDictionary.cs" />
     <Compile Include="Merging\TreeElementNotifier.cs" />
@@ -123,9 +124,7 @@
       <Name>ReactiveTree</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Adaptors\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Reference Include="System.Reactive.Core">
       <HintPath>..\packages\Rx-Core.2.1.30214.0\lib\Portable-Net45+WinRT45+WP8\System.Reactive.Core.dll</HintPath>

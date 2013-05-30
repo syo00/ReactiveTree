@@ -13,7 +13,7 @@ using System.Reactive.Disposables;
 
 namespace Kirinji.ReactiveTree.Merging
 {
-    public class TreeElementNotifier<K, V> : IReactiveTree<KeyArray<KeyOrIndex<K>>, TreeElement<K, V>>
+    public class TreeElementNotifier<K, V> : ISimpleReactiveDictionary<KeyArray<KeyOrIndex<K>>, IReadOnlyTreeElement<K, V>>
     {
         private bool isModifyingStraight;
         private ISubject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>> modifyingStraightSubject = new Subject<IEnumerable<KeyValuePair<KeyArray<KeyOrIndex<K>>, NotifyCollectionChangedEventArgs>>>();
@@ -74,21 +74,21 @@ namespace Kirinji.ReactiveTree.Merging
             isModifyingStraight = false;
         }
 
-        public IReadOnlyDictionary<KeyArray<KeyOrIndex<K>>, TreeElement<K, V>> Values(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
+        public IReadOnlyDictionary<KeyArray<KeyOrIndex<K>>, IReadOnlyTreeElement<K, V>> Values(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
         {
             return directories
-                .Select(d => new { Key = d, Value = CurrentTree.GetOrDefault(d) })
+                .Select(d => new { Key = d, Value = (IReadOnlyTreeElement<K, V>)CurrentTree.GetOrDefault(d) })
                 .ToDictionary(a => a.Key, a => a.Value);
         }
 
-        public IObservable<IReadOnlyDictionary<KeyArray<KeyOrIndex<K>>, TreeElement<K, V>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
+        public IObservable<IReadOnlyDictionary<KeyArray<KeyOrIndex<K>>, IReadOnlyTreeElement<K, V>>> ValuesChanged(IEnumerable<KeyArray<KeyOrIndex<K>>> directories)
         {
             preventDisposingObjects.Add(this);
 
             var inner = rawValueChanged
                 .Select(pairsChanged =>
                 {
-                    var rtn = new Dictionary<KeyArray<KeyOrIndex<K>>, TreeElement<K, V>>();
+                    var rtn = new Dictionary<KeyArray<KeyOrIndex<K>>, IReadOnlyTreeElement<K, V>>();
                     foreach (var dir in directories.Distinct())
                     {
                         // If in case that dir is [1, 2, 3]:
@@ -130,7 +130,7 @@ namespace Kirinji.ReactiveTree.Merging
                 })
                 .Where(list => list.Count != 0);
 
-            return Observable.Create<IReadOnlyDictionary<KeyArray<KeyOrIndex<K>>, TreeElement<K, V>>>(observer =>
+            return Observable.Create<IReadOnlyDictionary<KeyArray<KeyOrIndex<K>>, IReadOnlyTreeElement<K, V>>>(observer =>
             {
                 var subscription = inner.Subscribe(observer);
                 return new CompositeDisposable(

@@ -11,13 +11,13 @@ using Kirinji.ReactiveTree.TreeStructures;
 namespace Kirinji.ReactiveTree.Merging
 {
     /// <summary>Make IDirectoryValueChanged not to subscribe changes in specified directory,</summary>
-    public class TreeElementNotifierFilter<TKey, TValue> : Disposable, IReactiveTree<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>>
+    public class TreeElementNotifierFilter<TKey, TValue> : Disposable, ISimpleReactiveDictionary<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>>
     {
-        readonly IReactiveTree<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>> inner;
+        readonly ISimpleReactiveDictionary<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>> inner;
         readonly Func<KeyArray<KeyOrIndex<TKey>>, bool> filter;
 
         /// <param name="filter">Parameter gives directory. Return false to ignore subscription.</param>
-        public TreeElementNotifierFilter(IReactiveTree<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>> inner, Func<KeyArray<KeyOrIndex<TKey>>, bool> filter)
+        public TreeElementNotifierFilter(ISimpleReactiveDictionary<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>> inner, Func<KeyArray<KeyOrIndex<TKey>>, bool> filter)
         {
             Contract.Requires<ArgumentNullException>(inner != null);
             Contract.Requires<ArgumentNullException>(filter != null);

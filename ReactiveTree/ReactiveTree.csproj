@@ -105,8 +105,9 @@
     <DocumentationFile>bin\Release\ReactiveTree.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="IReactiveDictionary.cs" />
     <Compile Include="TreeStructures\ElementType.cs" />
-    <Compile Include="IReactiveTree.cs" />
+    <Compile Include="ISimpleReactiveDictionary.cs" />
     <Compile Include="TreeStructures\IReadOnlyTreeElement.cs" />
     <Compile Include="LightWands\LightWands.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Kirinji.ReactiveTree.Merging
 {
     // TreeElementNotifier の、TreeElement の変更通知をしないバージョン
-    public class TreeElementContainer<TKey, TValue> : IReactiveTree<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>>
+    public class TreeElementContainer<TKey, TValue> : ISimpleReactiveDictionary<KeyArray<KeyOrIndex<TKey>>, TreeElement<TKey, TValue>>
     {
         private TreeElement<TKey, TValue> currentTree;
 

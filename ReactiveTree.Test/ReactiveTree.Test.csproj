@@ -143,6 +143,7 @@
     <Compile Include="ChainingAssertion.MSTest.cs" />
     <Compile Include="LightWands\LightWands.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReactiveDictionaryTest.cs" />
     <Compile Include="SimpleJsonDataObjectTest.cs" />
     <Compile Include="TreeElementConverterTest.cs" />
     <Compile Include="TreeElementDictionaryTest.cs" />
