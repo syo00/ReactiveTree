@@ -139,6 +139,16 @@ namespace Kirinji.ReactiveTree
                 return NodeKey == null ? "Null" : NodeKey.ToString();
             }
         }
+
+        public static implicit operator KeyOrIndex<TKey>(TKey key)
+        {
+            return KeyOrIndex.Key(key);
+        }
+
+        public static implicit operator KeyOrIndex<TKey>(int index)
+        {
+            return KeyOrIndex.Index<TKey>(index);
+        }
     }
 
     public static class KeyOrIndex
